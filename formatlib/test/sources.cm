@@ -6,7 +6,7 @@ Group is
         $/basis.cm
 
         ../main/sources.cm
-        ../../../SMLUnit/smlunitlib.cm
+        $/smlunit-lib.cm
 
         SMLFormatTestUtil.sml
 

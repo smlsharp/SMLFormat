@@ -8,7 +8,7 @@ Group is
 	$/basis.cm
 #endif
 
-	../../../mlyacc/lib/ml-yacc-lib.cm
+	$/ml-yacc-lib.cm
 
 	Utility.sml
 	ErrorQueue.sml
