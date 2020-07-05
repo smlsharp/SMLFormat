@@ -2,4 +2,6 @@
  * @author YAMATODANI Kiyoshi
  * @copyright 2010, Tohoku University.
  *)
-alias generator/main/sources.cm
+group
+is
+  generator/main/sources.cm
