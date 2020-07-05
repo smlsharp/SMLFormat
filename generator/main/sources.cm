@@ -21,10 +21,9 @@ Group is
 	AstUtil.sml
 
 	Constants_MLton.sml
-	ml.grm.sig
-	ml.grm.sml
+	ml.grm
 	TokenTable.sml
-	ml.lex.sml
+	ml.lex
 	MLPARSER.sig
 	MLParser.sml
 
