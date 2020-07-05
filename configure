@@ -23,7 +23,7 @@ do
       echo "Usage: $0 OPTIONS..."
       echo
       echo "Options:"
-      echo "  --help                print this message."
+      echo "--help                print this message."
       echo "--prefix=DIR          install files to DIR [default=$prefix]"
       echo "--exec-prefix=DIR     isntall executables to DIR [default=$prefix]"
       echo "--with-smlnj          use SML/NJ [default=no]"
