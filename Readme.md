@@ -50,6 +50,29 @@ $ cp -R .cm $LOCAL_LIB/smlformatlib.cm/.cm
 Refer to `$/smlformatlib.cm` from your `sources.cm`.
 
 
+### Test
+
+Performs unit tests by loading `formatlib/test/sources.cm`.
+
+```
+- CM.make "formatlib/test/sources.cm";
+[autoloading]
+.
+.
+val it = true : bool
+- TestMain.test();
+.....................................................................................F.........................................
+tests = 127, failures = 1, errors = 0
+Failures:
+//11/SMLFormatTest0011/5/testGuard0101: expected:<"ab
+cdef">, actual:<"a
+b
+cdef">
+Errors:
+val it = () : unit
+```
+
+
 ## License
 
 This software has been developed as a part of the SML# project.
