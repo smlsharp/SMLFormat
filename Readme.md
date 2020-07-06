@@ -34,9 +34,29 @@ The SMLFormat consists of two components:
 
 ## SML/NJ
 
+### Build smlformat
+
+To build the pretty printer generator, use `ml-build` like below:
+
+```sh
+$ ml-build smlformat.cm Main.main bin/smlformat
+.
+.
+[creating directory .cm/amd64-unix]
+[code: 327, data: 31, env: 39 bytes]
+```
+
+This command generates a heap image file named `smlformat.<arch-os>`.
+For using this image, running sml with `@SMLload` option:
+
+```sh
+$ sml @SMLload=bin/smlformat FILE.ppg
+```
+
+
 ### Install
 
-Compile with `CM`.
+To build pretty printer library, perform `CM.make`.
 
 ```sh
 $ LOCAL_LIB=~/.smlnj/lib
