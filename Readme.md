@@ -148,6 +148,21 @@ To load an example before install `smlformatlib` and plugins, run `sml` with spe
 $ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
 ```
 
+### Install
+
+Compile with `CM`.
+
+```sh
+$ LOCAL_LIB=~/.smlnj/lib
+$ mkdir -p $LOCAL_LIB
+$ echo 'CM.stabilize true "smlformatlib.cm";' | sml
+$ echo "smlformatlib.cm $LOCAL_LIB/smlformatlib.cm" >> ~/.smlnj-pathconfig
+$ mkdir -p $LOCAL_LIB/smlformatlib.cm
+$ cp -R .cm $LOCAL_LIB/smlformatlib.cm/.cm
+```
+
+Refer to `$/smlformatlib.cm` from your `sources.cm`.
+
 
 ## License
 
@@ -164,3 +179,4 @@ YAMATODANI Kiyoshi @2010, Tohoku University.
 
 
 [SMLFormat]: https://www.pllab.riec.tohoku.ac.jp/smlsharp/ja/?cmd=view&p=SMLFormat&key=SMLFormat "SMLFormat"
+
