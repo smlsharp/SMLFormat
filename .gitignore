@@ -1,9 +1,11 @@
+bin/
 .cm/
+sources
 # heap image
 *.x86-linux
 *.amd64-linux
 # smlformat
-bin/smlformat
+bin/smlformat*
 # mlyacc
 *.grm.sml
 *.grm.sig
