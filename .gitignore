@@ -4,4 +4,11 @@
 *.amd64-linux
 # smlformat
 bin/smlformat
+# mlyacc
+*.grm.sml
+*.grm.sig
+*.grm.desc
+# mllex
+*.lex.sml
+# smlformat
 *.ppg.sml
