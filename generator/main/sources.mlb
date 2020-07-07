@@ -2,7 +2,9 @@
  * @author YAMATODANI Kiyoshi
  * @copyright 2010, Tohoku University.
  *)
-../mlton/preludes.mlb
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/sml-nj.mlb
+$(SML_LIB)/mlyacc-lib/mlyacc-lib.mlb
 
 Utility.sml
 ErrorQueue.sml
