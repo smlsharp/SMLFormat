@@ -148,20 +148,46 @@ To load an example before install `smlformatlib` and plugins, run `sml` with spe
 $ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
 ```
 
-### Install
 
-Compile with `CM`.
+## MLton
+
+### Build smlformat
+
+To build the pretty printer generator with MLton, specify `smlformat.mlb`.
 
 ```sh
-$ LOCAL_LIB=~/.smlnj/lib
-$ mkdir -p $LOCAL_LIB
-$ echo 'CM.stabilize true "smlformatlib.cm";' | sml
-$ echo "smlformatlib.cm $LOCAL_LIB/smlformatlib.cm" >> ~/.smlnj-pathconfig
-$ mkdir -p $LOCAL_LIB/smlformatlib.cm
-$ cp -R .cm $LOCAL_LIB/smlformatlib.cm/.cm
+$ mlton -output bin/smlformat generator/mlton/smlformat.mlb
 ```
 
-Refer to `$/smlformatlib.cm` from your `sources.cm`.
+`bin/smlformat` will be generated.
+
+
+### Install
+
+Add a mapping entry to the default mlb mapping file.
+
+```sh
+$ echo 'SMLFORMATLIB /path/to/smlformatlib.mlb' >> $MLTON_ROOT/mlb-path-map
+```
+
+
+### Test
+
+Perform unit test for `formatlib`, build a `.mlb` for tests:
+
+```sh
+$ mlton -output bin/formatlib-test formatlib/test/sources.mlb
+$ bin/formatlib-test
+.....................................................................................F...............F.........................
+tests = 127, failures = 2, errors = 0
+Failures:
+//11/SMLFormatTest0011/5/testGuard0101: expected:<"ab
+cdef">, actual:<"a
+b
+cdef">
+//14/BasicFormattersTest0001/8/testFormatReal0002: expected:<[...{0}..., Term #1 = 3, ...]>, actual:<[...{0}..., Term #1 = 1, ...]>
+Errors:
+```
 
 
 ## License
