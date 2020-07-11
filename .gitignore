@@ -14,7 +14,3 @@ bin/smlformat*
 *.lex.sml
 # smlformat
 *.ppg.sml
-# example
-example/MLParser/mlparser
-example/FormatExpressionParser/format_expression_parser
-example/Overview/sources
