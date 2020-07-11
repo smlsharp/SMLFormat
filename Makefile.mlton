@@ -5,10 +5,11 @@ MLTON_FLAGS :=
 MLLEX       := mllex
 MLYACC      := mlyacc
 
-SMLFORMATLIB_MLB := smlformatlib.mlb
-SMLFORMAT_MLB    := generator/mlton/smlformat.mlb
+SMLFORMATLIB_MLB      := smlformatlib.mlb
+SMLFORMAT_MLB         := generator/mlton/smlformat.mlb
+SMLFORMATLIB_TEST_MLB := formatlib/test/sources.mlb
 
-TARGET := SMLFORMATLIB_TC bin/smlformat
+TARGET   := SMLFORMATLIB_TC bin/smlformat
 
 
 all: $(TARGET)
@@ -35,9 +36,20 @@ bin/smlformat: $(shell $(MLTON) $(MLTON_FLAGS) -stop f $(SMLFORMAT_MLB))
 	$(MLYACC) $<
 
 
+bin/formatlib-test: $(shell $(MLTON) $(MLTON_FLAGS) -stop f $(SMLFORMATLIB_TEST_MLB))
+	@echo "  [MLTON] $@"
+	$(MLTON) $(MLTON_FLAGS) -output $@ $(SMLFORMATLIB_TEST_MLB)
+
+
+.PHONY: test
+test: bin/formatlib-test
+	$<
+
+
 .PHONY: clean
 clean:
 	-$(RM) bin/smlformat
+	-$(RM) bin/formatlib-test
 	-$(RM) generator/main/ml.grm.{sml,sig,desc}
 	-$(RM) generator/main/ml.lex.sml
 
