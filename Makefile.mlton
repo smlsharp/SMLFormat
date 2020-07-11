@@ -5,6 +5,8 @@ MLTON_FLAGS := -default-ann "nonexhaustiveMatch ignore"
 MLLEX       := mllex
 MLYACC      := mlyacc
 
+PREFIX      := /usr/local/mlton
+
 SMLFORMATLIB_MLB      := smlformatlib.mlb
 SMLFORMAT_MLB         := generator/mlton/smlformat.mlb
 SMLFORMATLIB_TEST_MLB := formatlib/test/sources.mlb
@@ -83,6 +85,13 @@ ifeq ($(findstring clean,$(MAKECMDGOALS)),)
 include $(SMLFORMAT_MLBS:.mlb=.mlb.d)
 include $(EXAMPLE_MLB:.mlb=.mlb.d)
 endif
+
+
+.PHONY: install
+install:
+	install -D -m 0755 -t $(PREFIX)/bin                      $(SMLFORMAT)
+	install -D -m 0644 -t $(PREFIX)/formatlib                smlformatlib.mlb
+	install -D -m 0644 -t $(PREFIX)/formatlib/formatlib/main formatlib/main/*
 
 
 .PHONY: clean
