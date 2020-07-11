@@ -8,18 +8,18 @@ Group is
 *)
 (*
 #if defined(NEW_CM)
-        $/basis_compat.cm
+	$/basis_compat.cm
 #endif
 *)
-$/basis.cm
+	$/basis.cm
 
 #if defined(NEW_CM)
-        $/ml-yacc-lib.cm
+	$/ml-yacc-lib.cm
 #else
-        ml-yacc-lib.cm
+	ml-yacc-lib.cm
 #endif
 
-        ../../smlformatlib.cm
+	../../smlformatlib.cm
 (*
 	Absyn.ppg:ppg
 *)
