@@ -15,7 +15,7 @@ EXAMPLES := example/MLParser/mlparser \
             example/FormatExpressionParser/format_expression_parser
 
 
-all: $(TARGET) $(EXAMPLES)
+all: $(TARGET) example
 
 
 .PHONY: SMLFORMATLIB_TC
@@ -64,6 +64,9 @@ example/FormatExpressionParser/format_expression_parser: $(shell $(MLTON) $(MLTO
 example/MLParser/mlparser: $(shell $(MLTON) $(MLTON_FLAGS) -mlb-path-var "SMLFORMAT_LIB `pwd`" -stop f example/MLParser/sources.mlb)
 	@echo "  [MLTON] $@"
 	$(MLTON) $(MLTON_FLAGS) -output $@ $(@D)/sources.mlb
+
+
+example: $(EXAMPLES)
 
 
 .PHONY: clean
