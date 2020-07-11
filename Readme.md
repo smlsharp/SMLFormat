@@ -35,7 +35,6 @@ The SMLFormat consists of two components:
 
     Tested 20130715
 
-
 ## SML&#x23;
 
 ### Build
@@ -65,7 +64,6 @@ This target requires [SMLDoc].
 ```sh
 $ make doc
 ```
-
 
 ## SML/NJ
 
