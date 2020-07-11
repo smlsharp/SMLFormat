@@ -4,15 +4,17 @@ MLTON_FLAGS :=
 
 MLLEX       := mllex
 MLYACC      := mlyacc
+SMLFORMAT   := smlformat
 
 SMLFORMATLIB_MLB      := smlformatlib.mlb
 SMLFORMAT_MLB         := generator/mlton/smlformat.mlb
 SMLFORMATLIB_TEST_MLB := formatlib/test/sources.mlb
 
 TARGET   := SMLFORMATLIB_TC bin/smlformat
+EXAMPLES := example/MLParser/mlparser
 
 
-all: $(TARGET)
+all: $(TARGET) $(EXAMPLES)
 
 
 .PHONY: SMLFORMATLIB_TC
@@ -36,6 +38,11 @@ bin/smlformat: $(shell $(MLTON) $(MLTON_FLAGS) -stop f $(SMLFORMAT_MLB))
 	$(MLYACC) $<
 
 
+%.ppg.sml: %.ppg
+	@echo "  [SMLFormat] "
+	$(SMLFORMAT) $<
+
+
 bin/formatlib-test: $(shell $(MLTON) $(MLTON_FLAGS) -stop f $(SMLFORMATLIB_TEST_MLB))
 	@echo "  [MLTON] $@"
 	$(MLTON) $(MLTON_FLAGS) -output $@ $(SMLFORMATLIB_TEST_MLB)
@@ -46,11 +53,20 @@ test: bin/formatlib-test
 	$<
 
 
+example/MLParser/mlparser: MLTON_FLAGS += -mlb-path-var "SMLFORMAT_LIB `pwd`"
+example/MLParser/mlparser: $(shell $(MLTON) $(MLTON_FLAGS) -mlb-path-var "SMLFORMAT_LIB `pwd`" -stop f example/MLParser/sources.mlb)
+	@echo "  [MLTON] $@"
+	$(MLTON) $(MLTON_FLAGS) -output $@ $(@D)/sources.mlb
+
+
 .PHONY: clean
 clean:
 	-$(RM) bin/smlformat
 	-$(RM) bin/formatlib-test
 	-$(RM) generator/main/ml.grm.{sml,sig,desc}
 	-$(RM) generator/main/ml.lex.sml
+	-$(RM) example/MLParser/mlparser
+	-$(RM) example/MLParser/ml.grm.{sml,sig,desc}
+	-$(RM) example/MLParser/ml.lex.sml
 
 
