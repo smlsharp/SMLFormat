@@ -1,0 +1,11 @@
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/mlyacc-lib/mlyacc-lib.mlb
+$(SMLFORMAT_LIB)/smlformatlib.mlb
+
+Ast.sml
+Parser.grm.sig
+Parser.grm.sml
+Lexer.lex.sml
+Main.sml
+call-main.sml
+
