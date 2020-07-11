@@ -32,6 +32,10 @@ The SMLFormat consists of two components:
     Tested 110.97
     32bit mode is required.
 
+* MLton
+
+    Tested 20130715
+
 
 ## SML/NJ
 
@@ -151,12 +155,15 @@ $ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
 
 ## MLton
 
+To build smlformat project with `mlton`, use `Makefile.mlton`.
+
+
 ### Build smlformat
 
-To build the pretty printer generator with MLton, specify `smlformat.mlb`.
+Make `smlformat` target:
 
 ```sh
-$ mlton -output bin/smlformat generator/mlton/smlformat.mlb
+$ make -f Makefile.mlton smlformat
 ```
 
 `bin/smlformat` will be generated.
@@ -164,20 +171,26 @@ $ mlton -output bin/smlformat generator/mlton/smlformat.mlb
 
 ### Install
 
-Add a mapping entry to the default mlb mapping file.
+Install by `install` target.
 
 ```sh
-$ echo 'SMLFORMATLIB /path/to/smlformatlib.mlb' >> $MLTON_ROOT/mlb-path-map
+$ make -f Makefile.mlton install
+$ echo 'SMLFORMAT_LIB /path/to/smlformatlib.mlb' >> $MLTON_ROOT/mlb-path-map
 ```
 
 
 ### Test
 
-Perform unit test for `formatlib`, build a `.mlb` for tests:
+Perform unit test for `formatlib`, specify `test` target:
 
 ```sh
-$ mlton -output bin/formatlib-test formatlib/test/sources.mlb
-$ bin/formatlib-test
+$ make -f Makefile.mlton test
+Makefile.mlton:83: smlformatlib.mlb.d: No such file or directory
+Makefile.mlton:83: generator/mlton/smlformat.mlb.d: No such file or directory
+.
+.
+  [MLTON] formatlib/test/sources
+formatlib/test/sources
 .....................................................................................F...............F.........................
 tests = 127, failures = 2, errors = 0
 Failures:
