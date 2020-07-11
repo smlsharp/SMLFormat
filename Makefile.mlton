@@ -1,20 +1,28 @@
 
-MLTON  := mlton
-MLLEX  := mllex
-MLYACC := mlyacc
+MLTON       := mlton
+MLTON_FLAGS :=
 
-SMLFORMAT_MLB := generator/mlton/smlformat.mlb
+MLLEX       := mllex
+MLYACC      := mlyacc
 
-TARGET := bin/smlformat
+SMLFORMATLIB_MLB := smlformatlib.mlb
+SMLFORMAT_MLB    := generator/mlton/smlformat.mlb
+
+TARGET := SMLFORMATLIB_TC bin/smlformat
 
 
 all: $(TARGET)
 
 
+.PHONY: SMLFORMATLIB_TC
+SMLFORMATLIB_TC: $(shell $(MLTON) $(MLTON_FLAGS) -stop f $(SMLFORMATLIB_MLB))
+	@echo "  [MLTON] $(SMLFORMATLIB_MLB)"
+	$(MLTON) $(MLTON_FLAGS) -stop tc $(SMLFORMATLIB_MLB)
 
-bin/smlformat: $(shell $(MLTON) -stop f $(SMLFORMAT_MLB))
+
+bin/smlformat: $(shell $(MLTON) $(MLTON_FLAGS) -stop f $(SMLFORMAT_MLB))
 	@echo "  [MLTON] $@"
-	$(MLTON) -output $@ $(SMLFORMAT_MLB)
+	$(MLTON) $(MLTON_FLAGS) -output $@ $(SMLFORMAT_MLB)
 
 
 %.lex.sml: %.lex
