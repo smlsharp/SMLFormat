@@ -1,0 +1,36 @@
+
+MLTON  := mlton
+MLLEX  := mllex
+MLYACC := mlyacc
+
+SMLFORMAT_MLB := generator/mlton/smlformat.mlb
+
+TARGET := bin/smlformat
+
+
+all: $(TARGET)
+
+
+
+bin/smlformat: $(shell $(MLTON) -stop f $(SMLFORMAT_MLB))
+	@echo "  [MLTON] $@"
+	$(MLTON) -output $@ $(SMLFORMAT_MLB)
+
+
+%.lex.sml: %.lex
+	@echo "  [MLLex] "
+	$(MLLEX) $<
+
+
+%.grm.sml %.grm.sig %.grm.desc: %.grm
+	@echo "  [MLYacc] "
+	$(MLYACC) $<
+
+
+.PHONY: clean
+clean:
+	-$(RM) bin/smlformat
+	-$(RM) generator/main/ml.grm.{sml,sig,desc}
+	-$(RM) generator/main/ml.lex.sml
+
+
