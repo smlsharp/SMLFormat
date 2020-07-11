@@ -17,3 +17,4 @@ bin/smlformat*
 # example
 example/MLParser/mlparser
 example/FormatExpressionParser/format_expression_parser
+example/Overview/sources

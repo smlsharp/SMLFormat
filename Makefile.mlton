@@ -12,7 +12,8 @@ SMLFORMATLIB_TEST_MLB := formatlib/test/sources.mlb
 
 TARGET   := SMLFORMATLIB_TC bin/smlformat
 EXAMPLES := example/MLParser/mlparser \
-            example/FormatExpressionParser/format_expression_parser
+            example/FormatExpressionParser/format_expression_parser \
+            example/Overview/sources
 
 
 all: $(TARGET) example
@@ -64,6 +65,11 @@ example/FormatExpressionParser/format_expression_parser: $(shell $(MLTON) $(MLTO
 example/MLParser/mlparser: $(shell $(MLTON) $(MLTON_FLAGS) -mlb-path-var "SMLFORMAT_LIB `pwd`" -stop f example/MLParser/sources.mlb)
 	@echo "  [MLTON] $@"
 	$(MLTON) $(MLTON_FLAGS) -output $@ $(@D)/sources.mlb
+
+
+example/Overview/sources: $(shell $(MLTON) $(MLTON_FLAGS) -mlb-path-var "SMLFORMAT_LIB `pwd`" -stop f example/Overview/sources.mlb)
+	@echo "  [MLTON] $@"
+	$(MLTON) -verbose 2 $(MLTON_FLAGS) -output $@ $(@D)/sources.mlb
 
 
 example: $(EXAMPLES)
