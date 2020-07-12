@@ -3,14 +3,6 @@
  * @copyright 2010, Tohoku University.
  *)
 Group is
-(*
-  to build this example, see ../../README.txt
-*)
-(*
-#if defined(NEW_CM)
-	$/basis_compat.cm
-#endif
-*)
 	$/basis.cm
 
 #if defined(NEW_CM)
@@ -20,14 +12,8 @@ Group is
 #endif
 
 	../../smlformatlib.cm
-(*
-	Absyn.ppg:ppg
-*)
-	Absyn.ppg.sml
-(*
-	AbsynUseDefault.ppg:ppg
-*)
-
+	Absyn.ppg           : smlformat
+(*	AbsynUseDefault.ppg : smlformat *)
 	ml.lex
 	ml.grm
 	Main.sml

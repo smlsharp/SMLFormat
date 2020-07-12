@@ -1,5 +1,5 @@
 Library
-	structure SMLFormatTool
+	structure PPGExt
 is
 	$smlnj/cm/tools.cm
-	smlformat-tool.sml
+	ppg-ext.sml

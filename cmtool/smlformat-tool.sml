@@ -3,11 +3,8 @@ struct
   val _ = Tools.registerStdShellCmdTool
              { tool = "SMLFormat",
                class = "smlformat",
-               cmdStdPath = fn () => ("@SMLFORMAT@", []),
+               cmdStdPath = fn () => ("smlformat", []),
                template = NONE,
                extensionStyle = Tools.EXTEND [("sml", SOME "sml", fn x => x)],
                dflopts = [] }
-
-  val _ = Tools.registerClassifier
-              (Tools.stdSfxClassifier { sfx = "ppg", class = "smlformat" })
 end

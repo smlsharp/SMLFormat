@@ -1,0 +1,20 @@
+# Example CM path config file.
+# 
+# For loading CM description files with SMLFormat before install,
+# execute `sml` with this file like below:
+# 
+# ```sh
+# $ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
+# Standard ML of New Jersey (64-bit) v110.97 [built: Tue May 12 00:16:59 2020]
+# - CM.make "example/MLParser/sources.cm";
+# .
+# .
+# [New bindings added.]
+# val it = true : bool
+# ```
+# 
+# This file assumed that the `smlformat` has been built already.
+# 
+ppg-ext.cm        .
+smlformat-tool.cm .
+smlformat         ../bin
