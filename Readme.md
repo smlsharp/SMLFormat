@@ -109,6 +109,25 @@ echo 'CM.stabilize true "cmtool/smlformat-tool.cm";' | sml
 `smlformat-lib` and ppg plugin are supported for both 32bit and 64bit mode.
 
 
+### Build smlformatlib
+
+To build the formatter library, build `smlformatlib.cm` using CM with _stabilize_ flag.
+
+```sh
+echo 'CM.stabilize true "smlformatlib.cm";'          | sml
+```
+
+Build ppg plugin in the same way.
+
+
+```sh
+echo 'CM.stabilize true "cmtool/ppg-ext.cm";'        | sml
+echo 'CM.stabilize true "cmtool/smlformat-tool.cm";' | sml
+```
+
+`smlformatlib` and ppg plugin are supported for both 32bit and 64bit mode.
+
+
 ### Install
 
 Prepare the install directories.
