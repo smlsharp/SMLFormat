@@ -30,44 +30,89 @@ The SMLFormat consists of two components:
 * SML/NJ
 
     Tested 110.97
+    32bit mode is required.
 
 
 ## SML/NJ
 
 ### Build smlformat
 
-To build the pretty printer generator, use `ml-build` like below:
+To build the pretty printer generator first build heap image by `ml-build` in 32bit mode like below:
 
 ```sh
-$ ml-build smlformat.cm Main.main bin/smlformat
+$ ml-build -32 smlformat.cm Main.main bin/smlformat
 .
 .
-[creating directory .cm/amd64-unix]
-[code: 327, data: 31, env: 39 bytes]
+[creating directory .cm/x86-unix]
+[code: 328, data: 72, env: 39 bytes]
 ```
 
-This command generates a heap image file named `smlformat.<arch-os>`.
-For using this image, running sml with `@SMLload` option:
+This command build a heap image named `smlformat.x86-linux`.
+Next it is needed to convert the image to an executable.
 
 ```sh
-$ sml @SMLload=bin/smlformat FILE.ppg
+$ SMLNJ_HOME=/path/to/root/of/smlnj bin/heap2exec-110.97-fix -32 bin/smlformat.x86-linux bin/smlformat
 ```
+
+
+### Build smlformatlib
+
+To build the formatter library, build `smlformatlib.cm` using CM with _stabilize_ flag.
+
+```sh
+echo 'CM.stabilize true "smlformatlib.cm";'          | sml
+```
+
+Build ppg plugin in the same way.
+
+
+```sh
+echo 'CM.stabilize true "cmtool/ppg-ext.cm";'        | sml
+echo 'CM.stabilize true "cmtool/smlformat-tool.cm";' | sml
+```
+
+`smlformatlib` and ppg plugin are supported for both 32bit and 64bit mode.
 
 
 ### Install
 
-To build pretty printer library, perform `CM.make`.
+Prepare the install directories.
 
 ```sh
 $ LOCAL_LIB=~/.smlnj/lib
+$ LOCAL_BIN=~/.smlnj/bin
 $ mkdir -p $LOCAL_LIB
-$ echo 'CM.stabilize true "smlformatlib.cm";' | sml
-$ echo "smlformatlib.cm $LOCAL_LIB/smlformatlib.cm" >> ~/.smlnj-pathconfig
-$ mkdir -p $LOCAL_LIB/smlformatlib.cm
-$ cp -R .cm $LOCAL_LIB/smlformatlib.cm/.cm
+$ mkdir -p $LOCAL_BIN
 ```
 
-Refer to `$/smlformatlib.cm` from your `sources.cm`.
+To install `smlformat`, copy the executable binary.
+
+```sh
+$ install -m 755 bin/smlformat $LOCAL_BIN
+```
+
+To install library and plugins:
+
+```sh
+$ mkdir -p $LOCAL_LIB/smlformatlib.cm
+$ mkdir -p $LOCAL_LIB/ppg-ext.cm
+$ mkdir -p $LOCAL_LIB/smlformat-tool.cm
+$ cp -R        .cm $LOCAL_LIB/smlformatlib.cm/.cm
+$ cp -R cmtool/.cm $LOCAL_LIB/ppg-ext.cm/.cm
+$ cp -R cmtool/.cm $LOCAL_LIB/smlformat-tool.cm/.cm
+```
+
+Finally, register installed files.
+
+
+```sh
+$ cat <<EOF >> ~/.smlnj-pathconfig
+smlformatlib.cm   $LOCAL_LIB/smlformatlib.cm
+ppg-ext.cm        $LOCAL_LIB/ppg-ext.cm
+smlformat-tool.cm $LOCAL_LIB/smlformat-tool.cm
+smlformat         $LOCAL_BIN
+EOF
+```
 
 
 ### Test
