@@ -3,20 +3,20 @@
  * @copyright 2010, Tohoku University.
  *)
 Group is
-(*
-  to build this example, see ../../README.txt
-*)
-
-(*
-#if defined(NEW_CM)
-	$/basis_compat.cm
-#endif
-*)
 	$/basis.cm
 	../../smlformatlib.cm
+#if not(defined(DERIVE_FORMAT))
 	Examples.ppg.sml
 	Types.ppg.sml
-(*
-	Examples.ppg:ppg
-	Types.ppg:ppg
-*)
+#else
+    (* Generate ppg.sml with smlformat with `DERIVE_FORMAT`.
+     *
+     * ```sml
+     * - #set (CM.symval "DERIVE_FORMAT") (SOME 1);
+     * val it = () : unit
+     * - CM.make "sources.cm";
+     * ```
+     *)
+	Examples.ppg
+	Types.ppg
+#endif
