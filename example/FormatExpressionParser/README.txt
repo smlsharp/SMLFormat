@@ -8,11 +8,11 @@ Running.
 
 2) start sml.
 
- $ sml-cm
+ $ sml
 
 3) make the sample.
 
- - CM.make();
+ - CM.make "sources.cm";
 
 4) run the main function.
 
