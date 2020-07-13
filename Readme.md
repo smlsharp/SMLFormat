@@ -138,6 +138,16 @@ val it = () : unit
 ```
 
 
+### Examples
+
+To build examples, load "sources.cm" in each directories.
+To load an example before install `smlformatlib` and plugins, run `sml` with special pathconfig file like below:
+
+```sh
+$ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
+```
+
+
 ## License
 
 This software has been developed as a part of the SML# project.
