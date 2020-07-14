@@ -12,6 +12,27 @@ MLLEX          := mllex-polyml
 MLYACC         := mlyacc-polyml
 SMLFORMAT      := bin/smlformat
 
+SMLFORMAT_SRC  := generator/main/Utility.sml \
+                  generator/main/ErrorQueue.sml \
+                  generator/main/FormatTemplate.sml \
+                  generator/main/AST.sig \
+                  generator/main/Ast.sml \
+                  generator/main/ASTUTIL.sig \
+                  generator/main/AstUtil.sml \
+                  generator/main/Constants_MLton.sml \
+                  generator/main/ml.grm.sig \
+                  generator/main/ml.grm.sml \
+                  generator/main/TokenTable.sml \
+                  generator/main/ml.lex.sml \
+                  generator/main/MLPARSER.sig \
+                  generator/main/MLParser.sml \
+                  generator/main/FORMATTER_GENERATOR.sig \
+                  generator/main/FormatterGenerator.sml \
+                  generator/main/BasicFormattersEnv.sml \
+                  generator/main/PPGMain.sml \
+                  generator/main/Main.sml \
+                  generator/main/Main_PolyML.sml
+
 TARGET := bin/smlformat \
           build/smlformatlib.poly
 
@@ -24,7 +45,7 @@ $(SMLFORMAT): build/smlformat.o
 	@$(POLYMLC) -o $@ $^
 
 
-build/smlformat.o: $(MLYACCLIB) $(wildcard ./generator/main/*)
+build/smlformat.o: $(MLYACCLIB) $(SMLFORMAT_SRC)
 	@echo "  [POLYML] $@"
 	@echo "" | $(POLYML) $(POLYMLFLAGS) \
 		--eval 'PolyML.loadModule "$<"' \
@@ -60,4 +81,6 @@ build/smlformatlib.poly: $(SMLNJLIB) $(wildcard ./formatlib/main/*)
 clean:
 	-$(RM) $(TARGET)
 	-$(RM) build/smlformat.o
+	-$(RM) generator/main/ml.lex.sml
+	-$(RM) $(wildcard generator/main/ml.grm.*)
 
