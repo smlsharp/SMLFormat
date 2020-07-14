@@ -1,15 +1,35 @@
 
 POLYML         := poly
 POLYMLC        := polyc
-POLYMLFLAGS    := -q --error-exit --eval 'PolyML.suffixes := ".sig"::(!PolyML.suffixes)'
+POLYMLFLAGS    := -q --error-exit \
+                  --eval 'PolyML.suffixes := ".sig"::(!PolyML.suffixes)' \
+                  --use ./script/load.sml
 
 POLYML_DIR     := $(HOME)/.polyml
 POLYML_LIB_DIR := $(POLYML_DIR)/lib
 
-TARGET := build/smlformatlib.poly
+MLLEX          := mllex-polyml
+MLYACC         := mlyacc-polyml
+SMLFORMAT      := bin/smlformat
+
+TARGET := bin/smlformat \
+          build/smlformatlib.poly
 
 
 all: $(TARGET)
+
+
+$(SMLFORMAT): build/smlformat.o
+	@echo "  [POLYMLC] $@"
+	@$(POLYMLC) -o $@ $^
+
+
+build/smlformat.o: $(MLYACCLIB) $(wildcard ./generator/main/*)
+	@echo "  [POLYML] $@"
+	@echo "" | $(POLYML) $(POLYMLFLAGS) \
+		--eval 'PolyML.loadModule "$<"' \
+		--eval 'load "generator/main/load.sml"' \
+		--eval 'PolyML.export ("$@", Main.main)'
 
 
 build/smlformatlib.poly: $(SMLNJLIB) $(wildcard ./formatlib/main/*)
@@ -21,7 +41,23 @@ build/smlformatlib.poly: $(SMLNJLIB) $(wildcard ./formatlib/main/*)
 		--eval 'PolyML.SaveState.saveModule ("$@", SMLFormat)'
 
 
+%.lex.sml: %.lex
+	@echo "  [MLLEX] $<"
+	@$(MLLEX) $<
+
+
+%.grm.sml %.grm.sig %.grm.desc: %.grm
+	@echo "  [MLYACC] $<"
+	@$(MLYACC) $<
+
+
+%.ppg.sml: %.ppg $(SMLFORMAT)
+	@echo "  [SMLFORMAT] $<"
+	@$(SMLFORMAT) $<
+
+
 .PHONY: clean
 clean:
 	-$(RM) $(TARGET)
+	-$(RM) build/smlformat.o
 
