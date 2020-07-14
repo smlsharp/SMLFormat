@@ -32,17 +32,5 @@ Group is
 	BasicFormattersEnv.sml
 
 	PPGMain.sml
-
-(*
- *  To register the SMLPPG to the tools registry of the CM,
- * you should send 'use "PPGSourceTool.sml' to the SML session after
- * 'CM.make();'.
- *)
-(*        PPGSourceTool.sml*)
-
 	Main.sml
 
-#if defined(SMLNJ_VERSION)
-#else
-	call-main.sml
-#endif
