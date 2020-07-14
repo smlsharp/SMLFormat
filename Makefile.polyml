@@ -1,0 +1,27 @@
+
+POLYML         := poly
+POLYMLC        := polyc
+POLYMLFLAGS    := -q --error-exit --eval 'PolyML.suffixes := ".sig"::(!PolyML.suffixes)'
+
+POLYML_DIR     := $(HOME)/.polyml
+POLYML_LIB_DIR := $(POLYML_DIR)/lib
+
+TARGET := build/smlformatlib.poly
+
+
+all: $(TARGET)
+
+
+build/smlformatlib.poly: $(SMLNJLIB) $(wildcard ./formatlib/main/*)
+	@echo "  [POLYML] $@"
+	@echo "" | $(POLYML) $(POLYMLFLAGS) \
+		--eval 'PolyML.loadModule "$<"' \
+		--eval 'PolyML.make "formatlib/main"' \
+		--use formatlib/main/export.sml \
+		--eval 'PolyML.SaveState.saveModule ("$@", SMLFormat)'
+
+
+.PHONY: clean
+clean:
+	-$(RM) $(TARGET)
+
