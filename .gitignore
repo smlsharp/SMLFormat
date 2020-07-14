@@ -1,11 +1,13 @@
 bin/
 .cm/
 sources
+*.mlb.d
 # heap image
 *.x86-linux
 *.amd64-linux
 # smlformat
 bin/smlformat*
+generator/mlton/smlformat*
 # mlyacc
 *.grm.sml
 *.grm.sig
