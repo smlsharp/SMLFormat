@@ -1,3 +1,4 @@
+## Copyright (C) 2020 Takayuki Goto
 
 POLYML         := poly
 POLYMLC        := polyc
@@ -11,6 +12,7 @@ POLYML_LIB_DIR := $(POLYML_DIR)/lib
 MLLEX          := mllex-polyml
 MLYACC         := mlyacc-polyml
 SMLFORMAT      := bin/smlformat
+SMLFORMATLIB   := build/smlformatlib.poly
 
 SMLFORMAT_SRC  := generator/main/Utility.sml \
                   generator/main/ErrorQueue.sml \
@@ -33,11 +35,20 @@ SMLFORMAT_SRC  := generator/main/Utility.sml \
                   generator/main/Main.sml \
                   generator/main/Main_PolyML.sml
 
-TARGET := bin/smlformat \
-          build/smlformatlib.poly
+MLPARSER_SRC   := example/MLParser/Absyn.ppg.sml \
+                  example/MLParser/call-main.sml \
+                  example/MLParser/Main.sml \
+                  example/MLParser/ml.grm.sig \
+                  example/MLParser/ml.grm.sml \
+                  example/MLParser/ml.lex.sml
 
 
-all: $(TARGET)
+TARGET   := bin/smlformat \
+            build/smlformatlib.poly
+
+EXAMPLES := bin/mlparser
+
+all: $(TARGET) example
 
 
 $(SMLFORMAT): build/smlformat.o
@@ -53,7 +64,7 @@ build/smlformat.o: $(MLYACCLIB) $(SMLFORMAT_SRC)
 		--eval 'PolyML.export ("$@", Main.main)'
 
 
-build/smlformatlib.poly: $(SMLNJLIB) $(wildcard ./formatlib/main/*)
+$(SMLFORMATLIB): $(SMLNJLIB) $(wildcard ./formatlib/main/*)
 	@echo "  [POLYML] $@"
 	@echo "" | $(POLYML) $(POLYMLFLAGS) \
 		--eval 'PolyML.loadModule "$<"' \
@@ -77,10 +88,30 @@ build/smlformatlib.poly: $(SMLNJLIB) $(wildcard ./formatlib/main/*)
 	@$(SMLFORMAT) $<
 
 
+build/mlparser.o: $(MLYACCLIB) $(SMLFORMATLIB) $(MLPARSER_SRC)
+	@echo "  [POLYML] $@"
+	@echo "" | $(POLYML) $(POLYMLFLAGS) \
+		--eval 'PolyML.loadModule "$<"' \
+		--eval 'PolyML.loadModule "$(SMLFORMATLIB)"' \
+		--eval 'load "example/MLParser/load.sml"' \
+		--eval 'PolyML.export ("$@", Main.main)'
+
+
+bin/mlparser: bin/%: build/%.o
+	@echo "  [POLYMLC] $@"
+	@$(POLYMLC) -o $@ $^
+
+
+example: bin/mlparser
+
+
 .PHONY: clean
 clean:
 	-$(RM) $(TARGET)
 	-$(RM) build/smlformat.o
 	-$(RM) generator/main/ml.lex.sml
 	-$(RM) $(wildcard generator/main/ml.grm.*)
+	-$(RM) build/mlparser.o
+	-$(RM) $(wildcard example/MLParser/ml.grm.*)
+	-$(RM) example/MLParser/ml.lex.sml
 
