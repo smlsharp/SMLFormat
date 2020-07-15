@@ -118,6 +118,7 @@ example: bin/mlparser
 .PHONY: clean
 clean:
 	-$(RM) $(TARGET)
+	-$(RM) $(EXAMPLES)
 	-$(RM) build/smlformat.o
 	-$(RM) generator/main/ml.lex.sml
 	-$(RM) $(wildcard generator/main/ml.grm.*)
