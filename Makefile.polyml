@@ -46,7 +46,8 @@ MLPARSER_SRC   := example/MLParser/Absyn.ppg.sml \
 TARGET   := bin/smlformat \
             build/smlformatlib.poly
 
-EXAMPLES := bin/mlparser
+EXAMPLES := bin/mlparser \
+            bin/fmt_expr_parser
 
 all: $(TARGET) example
 
@@ -97,7 +98,16 @@ build/mlparser.o: $(MLYACCLIB) $(SMLFORMATLIB) $(MLPARSER_SRC)
 		--eval 'PolyML.export ("$@", Main.main)'
 
 
-bin/mlparser: bin/%: build/%.o
+bin/fmt_expr_parser.o: $(MLYACCLIB) $(SMLFORMATLIB) $(FORMAT_EXPR_PARSER_SRC)
+	@echo "  [POLYML] $@"
+	@echo "" | $(POLYML) $(POLYMLFLAGS) \
+		--eval 'PolyML.loadModule "$<"' \
+		--eval 'PolyML.loadModule "$(SMLFORMATLIB)"' \
+		--eval 'load "example/FormatExpressionParser/load.sml"' \
+		--eval 'PolyML.export ("$@", Main.main)'
+
+
+$(EXAMPLES): bin/%: build/%.o
 	@echo "  [POLYMLC] $@"
 	@$(POLYMLC) -o $@ $^
 
