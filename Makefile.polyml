@@ -140,6 +140,7 @@ example: $(EXAMPLES)
 clean:
 	-$(RM) $(TARGET)
 	-$(RM) $(EXAMPLES)
+	-$(RM) $(addprefix build/,$(notdir $(EXAMPLES:=.o)))
 	-$(RM) build/smlformat.o
 	-$(RM) generator/main/ml.lex.sml
 	-$(RM) $(wildcard generator/main/ml.grm.*)
