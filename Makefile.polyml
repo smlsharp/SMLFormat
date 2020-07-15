@@ -57,24 +57,23 @@ OVERVIEW_SRC    := \
 TARGET   := bin/smlformat \
             build/smlformatlib.poly
 
+TEST     := bin/formatlib-test
+
 EXAMPLES := bin/mlparser \
             bin/fmt_expr_parser \
             bin/overview
 
-all: $(TARGET) example
+
+define build-module
+@echo "  [POLYML] $@"
+@echo "" | $(POLYML) $(POLYMLFLAGS) \
+	$(foreach dep,$(3),--eval 'PolyML.loadModule "$(dep)"') \
+	--eval 'load "$(1)/load.sml"' \
+	--eval 'PolyML.export ("$@", $2)'
+endef
 
 
-$(SMLFORMAT): build/smlformat.o
-	@echo "  [POLYMLC] $@"
-	@$(POLYMLC) -o $@ $^
-
-
-build/smlformat.o: $(MLYACCLIB) $(SMLFORMAT_SRC)
-	@echo "  [POLYML] $@"
-	@echo "" | $(POLYML) $(POLYMLFLAGS) \
-		--eval 'PolyML.loadModule "$<"' \
-		--eval 'load "generator/main/load.sml"' \
-		--eval 'PolyML.export ("$@", Main.main)'
+all: $(TARGET) test example
 
 
 $(SMLFORMATLIB): $(SMLNJLIB) $(wildcard ./formatlib/main/*)
@@ -84,6 +83,19 @@ $(SMLFORMATLIB): $(SMLNJLIB) $(wildcard ./formatlib/main/*)
 		--eval 'PolyML.make "formatlib/main"' \
 		--use formatlib/main/export.sml \
 		--eval 'PolyML.SaveState.saveModule ("$@", SMLFormat)'
+
+
+build/smlformat.o: $(MLYACCLIB) $(SMLFORMAT_SRC)
+	$(call build-module,generator/main,Main.main,$<)
+
+
+build/formatlib-test.o: $(SMLFORMATLIB) $(SMLUNITLIB)
+	$(call build-module,formatlib/test,TestMain.test,$(SMLUNITLIB) $(SMLFORMATLIB))
+
+
+.PHONY: test
+test: $(TEST)
+	./$<
 
 
 %.lex.sml: %.lex
@@ -119,11 +131,12 @@ build/overview.o: $(MLYACCLIB) $(SMLFORMATLIB) $(OVERVIEW_SRC)
 	$(call build-example,Overview,$< $(SMLFORMATLIB))
 
 
-$(EXAMPLES): bin/%: build/%.o
+$(SMLFORMAT) $(TEST) $(EXAMPLES): bin/%: build/%.o
 	@echo "  [POLYMLC] $@"
 	@$(POLYMLC) -o $@ $^
 
 
+.PHONY: example
 example: $(EXAMPLES)
 
 
