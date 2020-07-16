@@ -10,7 +10,7 @@ The SMLFormat consists of two components:
   formatlib (Pretty Printer library for SML)
   smlformat (Pretty Printer Generator for SML)
 
-* `formatlib` is a pretty printer library for SML.
+* `smlformatlib` is a pretty printer library for SML.
 * `smlformat` is a pretty printer generator for SML.
 * salvaged from the official SMLFormat distribution (included in SML# 0.90 compiler distribution)
 
@@ -37,7 +37,8 @@ The SMLFormat consists of two components:
 
 ### Build smlformat
 
-To build the pretty printer generator first build heap image by `ml-build` in 32bit mode like below:
+To build the pretty printer generator first build heap image by `ml-build` like below:
+This must be done in 32bit mode, even if you use 64bit architecture host.
 
 ```sh
 $ ml-build -32 smlformat.cm Main.main bin/smlformat
