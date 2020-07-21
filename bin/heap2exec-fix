@@ -24,9 +24,14 @@ usage() {
 	echo ""
 	echo "NOTICE:"
 	echo "  This file is a fixed version of heap2exec."
-	echo "  The original version distributed within SML/NJ 110.97."
+	echo "  The original version distributed within SML/NJ 110.98."
 	echo "  That fails build with link error on any 64bit platform."
 	echo ""
+	echo "NOTICE"
+	echo "  Using other version of SML/NJ tool chain,"
+	echo "  Set SMLNJ_HOME to the path to the SML/NJ root directory for that version,"
+	echo "  and run this command."
+	echo "  e.g. SMLNJ_HOME=/usr/local/smlnj-110.97 $CMD"
 	exit 1
 }
 

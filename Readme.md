@@ -56,7 +56,7 @@ This command build a heap image named `smlformat.x86-linux`.
 Next it is needed to convert the image to an executable.
 
 ```sh
-$ SMLNJ_HOME=/path/to/root/of/smlnj bin/heap2exec-110.97-fix -32 bin/smlformat.x86-linux bin/smlformat
+$ SMLNJ_HOME=/path/to/root/of/smlnj bin/heap2exec-fix -32 bin/smlformat.x86-linux bin/smlformat
 ```
 
 
