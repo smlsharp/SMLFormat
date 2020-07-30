@@ -91,10 +91,21 @@ endif
 
 
 .PHONY: install
-install:
-	install -D -m 0755 -t $(PREFIX)/bin                      $(SMLFORMAT)
-	install -D -m 0644 -t $(PREFIX)/formatlib                smlformatlib.mlb
-	install -D -m 0644 -t $(PREFIX)/formatlib/formatlib/main formatlib/main/*
+install: typecheck_smlformatlib $(SMLFORMAT) $(SMLFORMATLIB_MLB)
+	@[ -e $(PREFIX)/lib/SMLFormat ] || mkdir $(PREFIX)/lib/SMLFormat
+	@$(MLTON) $(MLTON_FLAGS) -stop f $(SMLFORMATLIB_MLB) | \
+	while read file; do \
+		if expr $$(readlink -f $$file) : ^$$(pwd) >/dev/null; then \
+			cp --parents $$(realpath --relative-to=$$(pwd) $$file) $(PREFIX)/lib/SMLFormat; \
+			echo -n . ; \
+		fi; \
+	done
+	@install -D -m 0755 -t $(PREFIX)/bin $(SMLFORMAT)
+	@echo "Installation has been completed."
+	@echo "Please add the entry to your mlb path map file:"
+	@echo ""
+	@echo "  SMLFORMAT_LIB $(PREFIX)/lib/SMLFormat"
+	@echo ""
 
 
 .PHONY: clean
