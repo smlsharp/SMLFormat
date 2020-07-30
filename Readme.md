@@ -185,10 +185,12 @@ $ echo 'SMLFORMAT_LIB /path/to/smlformatlib.mlb' >> $MLTON_ROOT/mlb-path-map
 
 ### Test
 
-Perform unit test for `formatlib`, specify `test` target:
+To perform unit test for `formatlib`, execute `test` target.
+This Unit test requires [SMLUnit], you need to specify the path to the library.
+
 
 ```sh
-$ make -f Makefile.mlton test
+$ make -f Makefile.mlton MLB_PATH_MAP=/path/to/mlb-path-map test
 Makefile.mlton:83: smlformatlib.mlb.d: No such file or directory
 Makefile.mlton:83: generator/mlton/smlformat.mlb.d: No such file or directory
 .
