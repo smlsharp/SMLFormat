@@ -1,6 +1,9 @@
 
 MLTON       := mlton
 MLTON_FLAGS := -default-ann "nonexhaustiveMatch ignore"
+ifneq ($(MLB_PATH_MAP),)
+MLTON_FLAGS += -mlb-path-map $(MLB_PATH_MAP)
+endif
 
 MLLEX       := mllex
 MLYACC      := mlyacc
