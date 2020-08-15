@@ -16,11 +16,11 @@ Running.
 
 4) start sml.
 
- $ sml-cm
+ $ sml
 
 5) make the sample.
 
- - CM.make();
+ - CM.make "sources.cm";
 
 6) run the main function.
 
