@@ -145,11 +145,15 @@ val it = () : unit
 
 ### Examples
 
-To build examples, load "sources.cm" in each directories.
+To build examples, load "sources.cm" in each project directories.
 To load an example before install `smlformatlib` and plugins, run `sml` with special pathconfig file like below:
 
 ```sh
 $ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
+- CM.make "examples/<project>/sources.cm";
+.
+.
+val it = true : bool
 ```
 
 
