@@ -3,7 +3,7 @@
  * @copyright 2010, Tohoku University.
  *)
 use "./FORMAT_EXPRESSION.sig";
-use "./FormatExpressionTypes_SMLSharp.sml";
+use "./FormatExpressionTypes.sml";
 use "./FormatExpression.sml";
 use "./PreProcessedExpression.sml";
 use "./PRINTER_PARAMETER.sig";
