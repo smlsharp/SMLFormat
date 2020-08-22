@@ -10,7 +10,7 @@ include @top_builddir@/commonrule
 
 VPATH = @srcdir_smlformat@
 
-TARGETS = smlformat
+TARGETS = bin/smlformat
 
 LEXFILES =  $(srcdir)/generator/main/ml.lex
 YACCFILES = $(srcdir)/generator/main/ml.grm
@@ -73,7 +73,7 @@ install: $(TARGETS) $(LIBFILES) $(LIBOBJS)
 	done
 
 
-smlformat: $(srcdir)/generator/main/call-main.smi $(OBJS)
+bin/smlformat: $(srcdir)/generator/main/call-main.smi $(OBJS)
 	@echo "  SML# [$@]"
 	@$(MAKESML) $(SMLFLAGS) -o $@ $<
 
@@ -85,7 +85,7 @@ smlformat: $(srcdir)/generator/main/call-main.smi $(OBJS)
 
 $(DEPENDS): %.d: %.sml
 	@echo "  GEN [$@]"
-	$(SHELL) -ec '$(MAKESML) -MM $(SMLFLAGS) $< \
+	@$(SHELL) -ec '$(MAKESML) -MM $(SMLFLAGS) $< \
 		| sed "s|\(.\)\.o[ :]*|\1.o $@ : |g" > $@; \
 		[ -s $@ ] || rm -rf $@'
 
@@ -93,13 +93,15 @@ $(DEPENDS): %.d: %.sml
 # remove default rules
 %.lex:
 $(srcdir)/generator/main/ml.lex.sml: generator/main/ml.lex
-	$(MLLEX) $(srcdir)/generator/main/ml.lex
+	@echo "  [MLLex] $@"
+	@$(MLLEX) $(srcdir)/generator/main/ml.lex
 
 
 # remove default rules
 %.grm:
 $(srcdir)/generator/main/ml.grm.sml $(srcdir)/generator/main/ml.grm.sig: $(srcdir)/generator/main/ml.grm
-	$(MLYACC) $(srcdir)/generator/main/ml.grm
+	@echo "  [MLYacc] $@"
+	@$(MLYACC) $(srcdir)/generator/main/ml.grm
 
 
 .PHONY: doc
