@@ -10,7 +10,7 @@ The SMLFormat consists of two components:
   formatlib (Pretty Printer library for SML)
   smlformat (Pretty Printer Generator for SML)
 
-* `smlformatlib` is a pretty printer library for SML.
+* `smlformat-lib` is a pretty printer library for SML.
 * `smlformat` is a pretty printer generator for SML.
 * salvaged from the official SMLFormat distribution (included in SML# 0.90 compiler distribution)
 
@@ -24,8 +24,7 @@ The SMLFormat consists of two components:
 
 * SML#
 
-    Not supported.
-    SML# > 0.90 requires interface file (.smi).
+    Tested 1.0.0
 
 * SML/NJ
 
@@ -60,12 +59,12 @@ $ SMLNJ_HOME=/path/to/root/of/smlnj bin/heap2exec-fix -32 bin/smlformat.x86-linu
 ```
 
 
-### Build smlformatlib
+### Build smlformat-lib
 
-To build the formatter library, build `smlformatlib.cm` using CM with _stabilize_ flag.
+To build the formatter library, build `smlformat-lib.cm` using CM with _stabilize_ flag.
 
 ```sh
-echo 'CM.stabilize true "smlformatlib.cm";'          | sml
+echo 'CM.stabilize true "smlformat-lib.cm";'          | sml
 ```
 
 Build ppg plugin in the same way.
@@ -76,7 +75,7 @@ echo 'CM.stabilize true "cmtool/ppg-ext.cm";'        | sml
 echo 'CM.stabilize true "cmtool/smlformat-tool.cm";' | sml
 ```
 
-`smlformatlib` and ppg plugin are supported for both 32bit and 64bit mode.
+`smlformat-lib` and ppg plugin are supported for both 32bit and 64bit mode.
 
 
 ### Install
@@ -99,12 +98,12 @@ $ install -m 755 bin/smlformat $LOCAL_BIN
 To install library and plugins:
 
 ```sh
-$ mkdir -p $LOCAL_LIB/smlformatlib.cm
+$ mkdir -p $LOCAL_LIB/smlformat-lib.cm
 $ mkdir -p $LOCAL_LIB/ppg-ext.cm
 $ mkdir -p $LOCAL_LIB/smlformat-tool.cm
-$ cp -R        .cm $LOCAL_LIB/smlformatlib.cm/.cm
-$ cp -R cmtool/.cm $LOCAL_LIB/ppg-ext.cm/.cm
-$ cp -R cmtool/.cm $LOCAL_LIB/smlformat-tool.cm/.cm
+$ cp -R        .cm $LOCAL_LIB/smlformat-lib.cm
+$ cp -R cmtool/.cm $LOCAL_LIB/ppg-ext.cm
+$ cp -R cmtool/.cm $LOCAL_LIB/smlformat-tool.cm
 ```
 
 Finally, register installed files.
@@ -112,7 +111,7 @@ Finally, register installed files.
 
 ```sh
 $ cat <<EOF >> ~/.smlnj-pathconfig
-smlformatlib.cm   $LOCAL_LIB/smlformatlib.cm
+smlformat-lib.cm  $LOCAL_LIB/smlformat-lib.cm
 ppg-ext.cm        $LOCAL_LIB/ppg-ext.cm
 smlformat-tool.cm $LOCAL_LIB/smlformat-tool.cm
 smlformat         $LOCAL_BIN
@@ -146,7 +145,7 @@ val it = () : unit
 ### Examples
 
 To build examples, load "sources.cm" in each project directories.
-To load an example before install `smlformatlib` and plugins, run `sml` with special pathconfig file like below:
+To load an example before install `smlformat-lib` and plugins, run `sml` with special pathconfig file like below:
 
 ```sh
 $ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
@@ -179,7 +178,7 @@ Install by `install` target.
 
 ```sh
 $ make -f Makefile.mlton install
-  [MLTON] typecheck smlformatlib.mlb
+  [MLTON] typecheck smlformat-lib.mlb
 ................Installation has been completed.
 Please add the entry to your mlb path map file:
 
@@ -211,9 +210,9 @@ This Unit test requires [SMLUnit], you need to specify the path to the library.
 
 
 ```sh
-$ make -f Makefile.mlton MLB_PATH_MAP=/path/to/mlb-path-map test
-Makefile.mlton:83: smlformatlib.mlb.d: No such file or directory
-Makefile.mlton:83: generator/mlton/smlformat.mlb.d: No such file or directory
+$ MLTON_FLAGS="-mlb-path-map /path/to/mlb-path-map" make -f Makefile.mlton test
+Makefile.mlton:93: smlformat-lib.mlb.d: No such file or directory
+Makefile.mlton:93: generator/mlton/smlformat.mlb.d: No such file or directory
 .
 .
   [MLTON] formatlib/test/sources
