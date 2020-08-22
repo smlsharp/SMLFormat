@@ -1,5 +1,5 @@
 $(SML_LIB)/basis/basis.mlb
-$(SMLFORMAT_LIB)/smlformatlib.mlb
+$(SMLFORMAT_LIB)/smlformat-lib.mlb
 Examples.ppg.sml
 Types.ppg.sml
 
