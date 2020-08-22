@@ -36,6 +36,27 @@ The SMLFormat consists of two components:
     Tested 20130715
 
 
+## SML&#x23;
+
+### Build
+
+Firstly, execute `./configure` script and then `make`.
+
+```sh
+$ ./configure
+$ make
+```
+
+
+### Install
+
+`smlformat` and `formatlib` are installed with `install` target:
+
+```sh
+$ make install
+```
+
+
 ## SML/NJ
 
 ### Build smlformat
