@@ -54,7 +54,8 @@ LIBFILES = smlformat-lib.smi \
            formatlib/main/SMLFormat.smi \
            formatlib/main/Truncator.smi
 
-LIBOBJS  = $(filter-out smlformat-lib.o,$(filter %.o,$(LIBFILES:.smi=.o)))
+LIBOBJS    = $(filter-out smlformat-lib.o,$(filter %.o,$(LIBFILES:.smi=.o)))
+LIBDEPENDS = $(filter-out smlformat-lib.d,$(filter %.d,$(LIBFILES:.smi=.d)))
 
 
 .PHONY: all
@@ -83,7 +84,7 @@ bin/smlformat: $(srcdir)/generator/main/call-main.smi $(OBJS)
 	@$(MAKESML) $(SMLFLAGS) -c $<
 
 
-$(DEPENDS): %.d: %.sml
+%.d: %.sml
 	@echo "  GEN [$@]"
 	@$(SHELL) -ec '$(MAKESML) -MM $(SMLFLAGS) $< \
 		| sed "s|\(.\)\.o[ :]*|\1.o $@ : |g" > $@; \
@@ -115,6 +116,7 @@ doc/api/index.html: $(srcdir)/formatlib/smldoc.cfg $(LIBFILES)
 
 ifeq (,$(findstring $(MAKECMDGOALS),clean))
 include $(DEPENDS)
+include $(LIBDEPENDS)
 endif
 
 
@@ -124,6 +126,7 @@ clean:
 	-rm -f $(TARGETS)
 	-rm -f $(OBJS) $(LIBOBJS)
 	-rm -f $(DEPENDS)
+	-rm -f $(LIBDEPENDS)
 	-rm -rf ./doc/api
 
 # # Makefile.in ends here.
