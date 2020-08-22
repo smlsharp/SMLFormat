@@ -127,11 +127,19 @@ $ cp -R cmtool/.cm $LOCAL_LIB/ppg-ext.cm
 $ cp -R cmtool/.cm $LOCAL_LIB/smlformat-tool.cm
 ```
 
+And for backward compatibility, copy to the old path:
+
+```sh
+$ mkdir -p $LOCAL_LIB/smlformatlib.cm
+$ cp -R .cm $LOCAL_LIB/smlformatlib.cm
+```
+
 Finally, register installed files.
 
 
 ```sh
 $ cat <<EOF >> ~/.smlnj-pathconfig
+smlformatlib.cm   $LOCAL_LIB/smlformatlib.cm
 smlformat-lib.cm  $LOCAL_LIB/smlformat-lib.cm
 ppg-ext.cm        $LOCAL_LIB/ppg-ext.cm
 smlformat-tool.cm $LOCAL_LIB/smlformat-tool.cm

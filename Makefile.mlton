@@ -29,9 +29,10 @@ all: typecheck_smlformatlib smlformat test example
 
 
 .PHONY: typecheck_smlformatlib
-typecheck_smlformatlib: smlformat-lib.mlb
+typecheck_smlformatlib: smlformat-lib.mlb smlformatlib.mlb
 	@echo "  [MLTON] typecheck $<"
-	@$(MLTON) $(MLTON_FLAGS) -stop tc $<
+	@$(MLTON) $(MLTON_FLAGS) -stop tc smlformat-lib.mlb
+	@$(MLTON) $(MLTON_FLAGS) -stop tc smlformatlib.mlb
 
 
 $(EXAMPLE_MLB:.mlb=): %: %.mlb
@@ -105,6 +106,7 @@ install: typecheck_smlformatlib $(SMLFORMAT) $(SMLFORMATLIB_MLB)
 			echo -n . ; \
 		fi; \
 	done
+	@install -D -m 0644 -t $(PREFIX)/lib/SMLFormat smlformatlib.mlb
 	@install -D -m 0755 -t $(PREFIX)/bin $(SMLFORMAT)
 	@echo "Installation has been completed."
 	@echo "Please add the entry to your mlb path map file:"
