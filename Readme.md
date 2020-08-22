@@ -57,6 +57,16 @@ $ make install
 ```
 
 
+### Doc
+
+`doc` target generates api documents to *doc/api*.
+This target requires [SMLDoc].
+
+```sh
+$ make doc
+```
+
+
 ## SML/NJ
 
 ### Build smlformat
@@ -272,7 +282,7 @@ http://www.pllab.riec.tohoku.ac.jp/smlsharp/
 YAMATODANI Kiyoshi @2010, Tohoku University.
 
 
-[SMLFormat]: https://www.pllab.riec.tohoku.ac.jp/smlsharp/ja/?cmd=view&p=SMLFormat&key=SMLFormat "SMLFormat"
+[SMLFormat]: https://www.pllab.riec.tohoku.ac.jp/smlsharp/ja/?SMLFormat "SMLFormat"
 [SMLUnit]: http://www.pllab.riec.tohoku.ac.jp/smlsharp/?SMLUnit "SMLUnit"
-
+[SMLDoc]: https://www.pllab.riec.tohoku.ac.jp/smlsharp/ja/?SMLDoc "SMLDoc"
 
