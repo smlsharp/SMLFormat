@@ -1,4 +1,4 @@
-_require "../../../basis.smi"
+_require "basis.smi"
 _require "Utility.smi"
 _require "Ast.smi"
 _require "FormatTemplate.smi"
