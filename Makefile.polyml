@@ -147,8 +147,12 @@ clean:
 	-$(RM) $(addprefix build/,$(notdir $(EXAMPLES:=.o)))
 	-$(RM) build/smlformat.o
 	-$(RM) generator/main/ml.lex.sml
-	-$(RM) $(wildcard generator/main/ml.grm.*)
+	-$(RM) generator/main/ml.grm.sig
+	-$(RM) generator/main/ml.grm.sml
+	-$(RM) generator/main/ml.grm.desc
 	-$(RM) build/mlparser.o
-	-$(RM) $(wildcard example/MLParser/ml.grm.*)
+	-$(RM) example/MLParser/ml.grm.sig
+	-$(RM) example/MLParser/ml.grm.sml
+	-$(RM) example/MLParser/ml.grm.desc
 	-$(RM) example/MLParser/ml.lex.sml
 
