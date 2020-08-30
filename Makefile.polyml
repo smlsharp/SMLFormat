@@ -6,13 +6,13 @@ POLYMLFLAGS    := -q --error-exit \
                   --eval 'PolyML.suffixes := ".sig"::(!PolyML.suffixes)' \
                   --use ./script/load.sml
 
-POLYML_DIR     := $(HOME)/.polyml
-POLYML_LIB_DIR := $(POLYML_DIR)/lib
+PREFIX         := /usr/local
 
 MLLEX          := mllex-polyml
 MLYACC         := mlyacc-polyml
 SMLFORMAT      := bin/smlformat
-SMLFORMATLIB   := build/smlformatlib.poly
+SMLFORMAT_VER  := 1.0.0
+SMLFORMATLIB   := build/smlformatlib-$(SMLFORMAT_VER).poly
 
 SMLFORMAT_SRC  := generator/main/Utility.sml \
                   generator/main/ErrorQueue.sml \
@@ -54,8 +54,8 @@ OVERVIEW_SRC    := \
                   example/Overview/Types.ppg.sml
 
 
-TARGET   := bin/smlformat \
-            build/smlformatlib.poly
+TARGET   := $(SMLFORMAT) \
+            $(SMLFORMATLIB)
 
 TEST     := bin/formatlib-test
 
@@ -138,6 +138,15 @@ $(SMLFORMAT) $(TEST) $(EXAMPLES): bin/%: build/%.o
 
 .PHONY: example
 example: $(EXAMPLES)
+
+
+
+.PHONY: install
+install: $(TARGET)
+	@[ -e $(PREFIX)/bin ] || mkdir $(PREFIX)/bin
+	@[ -e $(PREFIX)/lib ] || mkdir $(PREFIX)/lib
+	install -D -m 755 -t $(PREFIX)/bin $(SMLFORMAT)
+	install -D -m 644 -t $(PREFIX)/lib $(SMLFORMATLIB)
 
 
 .PHONY: clean
