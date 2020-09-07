@@ -28,7 +28,7 @@ The SMLFormat consists of two components:
 
 * SML/NJ
 
-    Tested 110.97
+    Tested 110.97, 110.98.1
     32bit mode is required.
 
 * MLton
@@ -95,7 +95,7 @@ $ SMLNJ_HOME=/path/to/root/of/smlnj bin/heap2exec-fix -32 bin/smlformat.x86-linu
 To build the formatter library, build `smlformat-lib.cm` using CM with _stabilize_ flag.
 
 ```sh
-echo 'CM.stabilize true "smlformat-lib.cm";'          | sml
+echo 'CM.stabilize true "smlformat-lib.cm";'         | sml
 ```
 
 Build ppg plugin in the same way.
@@ -188,7 +188,7 @@ To load an example before install `smlformat-lib` and plugins, run `sml` with sp
 
 ```sh
 $ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
-- CM.make "examples/<project>/sources.cm";
+- CM.make "example/<project>/sources.cm";
 .
 .
 val it = true : bool
