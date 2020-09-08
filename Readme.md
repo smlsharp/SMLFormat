@@ -179,16 +179,39 @@ Install by `install` target.
 
 ```sh
 $ make -f Makefile.mlton install
-$ echo 'SMLFORMAT_LIB /path/to/smlformatlib.mlb' >> $MLTON_ROOT/mlb-path-map
+  [MLTON] typecheck smlformatlib.mlb
+................Installation has been completed.
+Please add the entry to your mlb path map file:
+
+  SMLFORMAT_LIB /usr/local/mlton/lib/SMLFormat
+
+```
+
+It is able to change the location with `PREFIX` variable like:
+
+```sh
+make -f Makefile.mlton PREFIX=~/.sml/mlton install
+.
+.
+  SMLFORMAT_LIB /home/user/.sml/mlton/lib/SMLFormat
+
+```
+
+After `make install`, you need to add an entry in your mlb path mapping file:
+
+```sh
+$ echo 'SMLFORMAT_LIB /path/to/$PREFIX/lib/SMLFormat' >> /path/to/mlb-path-map
 ```
 
 
 ### Test
 
-Perform unit test for `formatlib`, specify `test` target:
+To perform unit test for `formatlib`, execute `test` target.
+This Unit test requires [SMLUnit], you need to specify the path to the library.
+
 
 ```sh
-$ make -f Makefile.mlton test
+$ make -f Makefile.mlton MLB_PATH_MAP=/path/to/mlb-path-map test
 Makefile.mlton:83: smlformatlib.mlb.d: No such file or directory
 Makefile.mlton:83: generator/mlton/smlformat.mlb.d: No such file or directory
 .
@@ -222,4 +245,6 @@ YAMATODANI Kiyoshi @2010, Tohoku University.
 
 
 [SMLFormat]: https://www.pllab.riec.tohoku.ac.jp/smlsharp/ja/?cmd=view&p=SMLFormat&key=SMLFormat "SMLFormat"
+[SMLUnit]: http://www.pllab.riec.tohoku.ac.jp/smlsharp/?SMLUnit "SMLUnit"
+
 
