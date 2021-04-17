@@ -6,13 +6,39 @@ POLYMLFLAGS    := -q --error-exit \
                   --eval 'PolyML.suffixes := ".sig"::(!PolyML.suffixes)' \
                   --use ./script/load.sml
 
-PREFIX         := /usr/local
-
 MLLEX          := mllex-polyml
 MLYACC         := mlyacc-polyml
-SMLFORMAT      := bin/smlformat
+
+PREFIX         := /usr/local/polyml
+BINDIR         := bin
+LIBDIR         := $(PREFIX)/lib
+
+SMLFORMAT      := $(BINDIR)/smlformat
 SMLFORMAT_VER  := 1.0.0
-SMLFORMATLIB   := build/smlformatlib-$(SMLFORMAT_VER).poly
+SMLFORMAT_LIB  := lib/smlformat-lib/smlformat-lib-$(SMLFORMAT_VER).poly
+
+# dependencies
+MLYACC_LIB     := $(LIBDIR)/mlyacc-lib/mlyacc-lib-1.0.0.poly
+SMLNJ_UTIL_LIB := $(LIBDIR)/smlnj-lib-110.82/smlnj-util-lib-0.0.1.poly
+SMLUNIT_LIB    := $(LIBDIR)/smlunit-lib/smlunit-lib.poly
+
+SMLFORMAT_LIB_SRC := \
+                  formatlib/main/export.sml \
+                  formatlib/main/ml_bind.sml \
+                  formatlib/main/AssocResolver.sml \
+                  formatlib/main/BASIC_FORMATTERS.sig \
+                  formatlib/main/BasicFormatters.sml \
+                  formatlib/main/FORMAT_EXPRESSION.sig \
+                  formatlib/main/FormatExpression.sml \
+                  formatlib/main/FormatExpressionTypes.sml \
+                  formatlib/main/PreProcessedExpression.sml \
+                  formatlib/main/PreProcessor.sml \
+                  formatlib/main/PrettyPrinter.sml \
+                  formatlib/main/PRINTER_PARAMETER.sig \
+                  formatlib/main/PrinterParameter.sml \
+                  formatlib/main/SMLFORMAT.sig \
+                  formatlib/main/SMLFormat.sml \
+                  formatlib/main/Truncator.sml
 
 SMLFORMAT_SRC  := generator/main/Utility.sml \
                   generator/main/ErrorQueue.sml \
@@ -49,34 +75,33 @@ FORMAT_EXPR_PARSER_SRC := \
                   example/FormatExpressionParser/Parser.grm.sml \
                   example/FormatExpressionParser/Main.sml
 
-OVERVIEW_SRC    := \
-                  example/Overview/Examples.ppg.sml \
+OVERVIEW_SRC   := example/Overview/Examples.ppg.sml \
                   example/Overview/Types.ppg.sml
 
 
-TARGET   := $(SMLFORMAT) \
-            $(SMLFORMATLIB)
+TARGET         := $(SMLFORMAT) \
+                  $(SMLFORMAT_LIB)
 
-TEST     := bin/formatlib-test
+TEST           := $(BINDIR)/formatlib-test
 
-EXAMPLES := bin/mlparser \
-            bin/fmt_expr_parser \
-            bin/overview
+EXAMPLES       := $(BINDIR)/mlparser \
+                  $(BINDIR)/fmt_expr_parser \
+                  $(BINDIR)/overview
 
 
 define build-module
 @echo "  [POLYML] $@"
-@echo "" | $(POLYML) $(POLYMLFLAGS) \
+echo "" | $(POLYML) $(POLYMLFLAGS) \
 	$(foreach dep,$(3),--eval 'PolyML.loadModule "$(dep)"') \
 	--eval 'load "$(1)/load.sml"' \
 	--eval 'PolyML.export ("$@", $2)'
 endef
 
 
-all: $(TARGET) test example
+all: $(TARGET)
 
 
-$(SMLFORMATLIB): $(SMLNJLIB) $(wildcard ./formatlib/main/*)
+$(SMLFORMAT_LIB): $(SMLNJ_UTIL_LIB) $(SMLFORMAT_LIB_SRC)
 	@echo "  [POLYML] $@"
 	@echo "" | $(POLYML) $(POLYMLFLAGS) \
 		--eval 'PolyML.loadModule "$<"' \
@@ -85,12 +110,12 @@ $(SMLFORMATLIB): $(SMLNJLIB) $(wildcard ./formatlib/main/*)
 		--eval 'PolyML.SaveState.saveModule ("$@", SMLFormat)'
 
 
-build/smlformat.o: $(MLYACCLIB) $(SMLFORMAT_SRC)
+obj/smlformat.o: $(MLYACC_LIB) $(SMLFORMAT_SRC)
 	$(call build-module,generator/main,Main.main,$<)
 
 
-build/formatlib-test.o: $(SMLFORMATLIB) $(SMLUNITLIB)
-	$(call build-module,formatlib/test,TestMain.test,$(SMLUNITLIB) $(SMLFORMATLIB))
+obj/formatlib-test.o: $(SMLFORMAT_LIB) $(SMLUNIT_LIB)
+	$(call build-module,formatlib/test,TestMain.test,$(SMLUNIT_LIB) $(SMLFORMAT_LIB))
 
 
 .PHONY: test
@@ -115,23 +140,23 @@ test: $(TEST)
 
 define build-example
 @echo "  [POLYML] $@"
-@echo "" | $(POLYML) $(POLYMLFLAGS) \
+echo "" | $(POLYML) $(POLYMLFLAGS) \
 	$(foreach dep,$(2),--eval 'PolyML.loadModule "$(dep)"') \
 	--eval 'load "example/$(1)/load.sml"' \
 	--eval 'PolyML.export ("$@", Main.main)'
 endef
 
-build/mlparser.o: $(MLYACCLIB) $(SMLFORMATLIB) $(MLPARSER_SRC)
-	$(call build-example,MLParser,$< $(SMLFORMATLIB))
+obj/mlparser.o: $(MLYACC_LIB) $(SMLFORMAT_LIB) $(MLPARSER_SRC)
+	$(call build-example,MLParser,$< $(SMLFORMAT_LIB))
 
-build/fmt_expr_parser.o: $(MLYACCLIB) $(SMLFORMATLIB) $(FORMAT_EXPR_PARSER_SRC)
-	$(call build-example,FormatExpressionParser,$< $(SMLFORMATLIB))
+obj/fmt_expr_parser.o: $(MLYACC_LIB) $(SMLFORMAT_LIB) $(FORMAT_EXPR_PARSER_SRC)
+	$(call build-example,FormatExpressionParser,$< $(SMLFORMAT_LIB))
 
-build/overview.o: $(MLYACCLIB) $(SMLFORMATLIB) $(OVERVIEW_SRC)
-	$(call build-example,Overview,$< $(SMLFORMATLIB))
+obj/overview.o: $(MLYACC_LIB) $(SMLFORMAT_LIB) $(OVERVIEW_SRC)
+	$(call build-example,Overview,$< $(SMLFORMAT_LIB))
 
 
-$(SMLFORMAT) $(TEST) $(EXAMPLES): bin/%: build/%.o
+$(SMLFORMAT) $(TEST) $(EXAMPLES): $(BINDIR)/%: obj/%.o
 	@echo "  [POLYMLC] $@"
 	@$(POLYMLC) -o $@ $^
 
@@ -140,26 +165,21 @@ $(SMLFORMAT) $(TEST) $(EXAMPLES): bin/%: build/%.o
 example: $(EXAMPLES)
 
 
-
-.PHONY: install
-install: $(TARGET)
-	@[ -e $(PREFIX)/bin ] || mkdir $(PREFIX)/bin
-	@[ -e $(PREFIX)/lib ] || mkdir $(PREFIX)/lib
-	install -D -m 755 -t $(PREFIX)/bin $(SMLFORMAT)
-	install -D -m 644 -t $(PREFIX)/lib $(SMLFORMATLIB)
+.PHONY: install-nodoc
+install-nodoc: $(TARGET)
+	install -D -m 755 -t $(PREFIX)/bin               $(SMLFORMAT)
+	install -D -m 644 -t $(PREFIX)/lib/smlformat-lib $(SMLFORMAT_LIB)
 
 
 .PHONY: clean
 clean:
 	-$(RM) $(TARGET)
 	-$(RM) $(EXAMPLES)
-	-$(RM) $(addprefix build/,$(notdir $(EXAMPLES:=.o)))
-	-$(RM) build/smlformat.o
+	-$(RM) obj/*.o
 	-$(RM) generator/main/ml.lex.sml
 	-$(RM) generator/main/ml.grm.sig
 	-$(RM) generator/main/ml.grm.sml
 	-$(RM) generator/main/ml.grm.desc
-	-$(RM) build/mlparser.o
 	-$(RM) example/MLParser/ml.grm.sig
 	-$(RM) example/MLParser/ml.grm.sml
 	-$(RM) example/MLParser/ml.grm.desc

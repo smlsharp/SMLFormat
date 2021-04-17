@@ -14,6 +14,5 @@ fun load path =
     use (Path.file path) handle exn => (cd pwd; raise exn);
     cd pwd
   end
-
 end
 
