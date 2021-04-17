@@ -20,6 +20,15 @@ The SMLFormat consists of two components:
 * This is not official repository.
 
 
+## Dependencies
+
+- mllex
+- mlyacc and mlyacc-lib
+- smlnj-lib
+- smlunit-lib (unit test)
+- smldoc (documentations)
+
+
 ## Support platforms
 
 * SML#
@@ -34,6 +43,11 @@ The SMLFormat consists of two components:
 * MLton
 
     Tested 20130715
+
+* Poly/ML
+
+    Tested 5.8.1
+
 
 ## SML&#x23;
 
@@ -282,6 +296,72 @@ b
 cdef">
 //14/BasicFormattersTest0001/8/testFormatReal0002: expected:<[...{0}..., Term #1 = 3, ...]>, actual:<[...{0}..., Term #1 = 1, ...]>
 Errors:
+```
+
+
+## Poly/ML
+
+### Build
+
+To build `smlformat` and `smlformat-lib`, run the default target of `Makefile.polyml`.
+
+```sh
+$ make -f Makefile.polyml
+```
+
+When some dependencies are not found, specify `PREFIX` or `LIBDIR`:
+
+```sh
+$ make -f Makefile.polyml PREFIX=~/.sml/polyml/5.8.1
+```
+
+The default target generates `smlformat`, `smlformat-lib` and it's documentations.
+If you do not need the documentations, run the `smlformat-nodoc` and the `smlformat-lib-nodoc` targets.
+
+```sh
+$ make -f Makefile.polyml smlformat-nodoc
+```
+
+
+### Install
+
+To install `smlformat` and `smlformat-lib`, run the `install` target.
+
+```sh
+$ make -f Makefile.polyml install
+```
+
+If you do not need the documentations, run the `install-nodoc` target.
+
+```sh
+$ make -f Makefile.polyml install-nodoc
+```
+
+
+### Doc
+
+To generate the documentations of `smlformat-lib`, run the `doc` target.
+
+```sh
+$ make -f Makefile.polyml doc
+```
+
+
+### Test
+
+To run the unit tests, run the `test` target.
+
+```sh
+$ make -f Makefile.polyml test
+```
+
+
+### Example
+
+To build examples, run the `example` target.
+
+```sh
+$ make -f Makefile.polyml example
 ```
 
 
