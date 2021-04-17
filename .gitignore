@@ -1,5 +1,6 @@
 bin/
-build/
+lib/
+doc/api/
 .cm/
 sources
 *.o
@@ -18,4 +19,3 @@ generator/mlton/smlformat*
 *.lex.sml
 # smlformat
 *.ppg.sml
-Makefile
