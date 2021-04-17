@@ -1,16 +1,13 @@
 
 MLTON       := mlton
-MLTON_FLAGS := -default-ann "nonexhaustiveMatch ignore"
-ifneq ($(MLB_PATH_MAP),)
-MLTON_FLAGS += -mlb-path-map $(MLB_PATH_MAP)
-endif
+MLTON_FLAGS += -default-ann "nonexhaustiveMatch ignore"
 
 MLLEX       := mllex
 MLYACC      := mlyacc
 
 PREFIX      := /usr/local/mlton
 
-SMLFORMATLIB_MLB      := smlformatlib.mlb
+SMLFORMATLIB_MLB      := smlformat-lib.mlb
 SMLFORMAT_MLB         := generator/mlton/smlformat.mlb
 SMLFORMATLIB_TEST_MLB := formatlib/test/sources.mlb
 SMLFORMAT_MLBS        := $(SMLFORMATLIB_MLB)      \
@@ -32,13 +29,17 @@ all: typecheck_smlformatlib smlformat test example
 
 
 .PHONY: typecheck_smlformatlib
-typecheck_smlformatlib: smlformatlib.mlb
+typecheck_smlformatlib: smlformat-lib.mlb smlformatlib.mlb
 	@echo "  [MLTON] typecheck $<"
-	@$(MLTON) $(MLTON_FLAGS) -stop tc $<
+	@$(MLTON) $(MLTON_FLAGS) -stop tc smlformat-lib.mlb
+	@$(MLTON) $(MLTON_FLAGS) -stop tc smlformatlib.mlb
 
 
-$(EXAMPLE_MLB:.mlb=): MLTON_FLAGS += -mlb-path-var "SMLFORMAT_LIB $(SMLFORMAT_LIB_DIR)"
-$(SMLFORMAT_MLB:.mlb=) $(SMLFORMATLIB_TEST_MLB:.mlb=) $(EXAMPLE_MLB:.mlb=): %: %.mlb
+$(EXAMPLE_MLB:.mlb=): %: %.mlb
+	@echo "  [MLTON] $@"
+	@$(MLTON) $(MLTON_FLAGS) -mlb-path-var 'SMLFORMAT_LIB $(SMLFORMAT_LIB_DIR)' -output $@ $<
+
+$(SMLFORMAT_MLB:.mlb=) $(SMLFORMATLIB_TEST_MLB:.mlb=): %: %.mlb
 	@echo "  [MLTON] $@"
 	@$(MLTON) $(MLTON_FLAGS) -output $@ $<
 
@@ -52,8 +53,13 @@ $(SMLFORMAT): $(SMLFORMAT_MLB:.mlb=)
 	@cp $< $@
 
 
-$(EXAMPLE_MLB:.mlb=.mlb.d): MLTON_FLAGS += -mlb-path-var "SMLFORMAT_LIB $(SMLFORMAT_LIB_DIR)"
-%.mlb.d: %.mlb
+$(EXAMPLE_MLB:.mlb=.mlb.d): %.mlb.d: %.mlb
+	@echo "  [GEN] $@"
+	@$(SHELL) -ec '$(MLTON) $(MLTON_FLAGS) -mlb-path-var '\''SMLFORMAT_LIB $(SMLFORMAT_LIB_DIR)'\'' -stop f $< \
+		| sed -e "1i$(<:.mlb=) $@:\\\\" -e "s|.*|  & \\\\|" -e "\$$s| \\\\||" > $@; \
+		[ -s $@ ] || rm -rf $@'
+
+$(SMLFORMAT_MLBS:.mlb=.mlb.d) : %.mlb.d: %.mlb
 	@echo "  [GEN] $@"
 	@$(SHELL) -ec '$(MLTON) $(MLTON_FLAGS) -stop f $< \
 		| sed -e "1i$(<:.mlb=) $@:\\\\" -e "s|.*|  & \\\\|" -e "\$$s| \\\\||" > $@; \
@@ -85,8 +91,8 @@ example: $(SMLFORMAT) $(EXAMPLES)
 
 
 ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-include $(SMLFORMAT_MLBS:.mlb=.mlb.d)
-include $(EXAMPLE_MLB:.mlb=.mlb.d)
+  include $(SMLFORMAT_MLBS:.mlb=.mlb.d)
+  include $(EXAMPLE_MLB:.mlb=.mlb.d)
 endif
 
 
@@ -100,6 +106,7 @@ install: typecheck_smlformatlib $(SMLFORMAT) $(SMLFORMATLIB_MLB)
 			echo -n . ; \
 		fi; \
 	done
+	@install -D -m 0644 -t $(PREFIX)/lib/SMLFormat smlformatlib.mlb
 	@install -D -m 0755 -t $(PREFIX)/bin $(SMLFORMAT)
 	@echo "Installation has been completed."
 	@echo "Please add the entry to your mlb path map file:"
@@ -113,11 +120,15 @@ clean:
 	-$(RM) $(SMLFORMAT_MLBS:.mlb=)
 	-$(RM) $(SMLFORMAT_MLBS:.mlb=.mlb.d)
 	-$(RM) $(SMLFORMAT)
-	-$(RM) generator/main/ml.grm.*
+	-$(RM) generator/main/ml.grm.sml
+	-$(RM) generator/main/ml.grm.sig
+	-$(RM) generator/main/ml.grm.desc
 	-$(RM) generator/main/ml.lex.sml
 	-$(RM) $(EXAMPLES)
 	-$(RM) $(EXAMPLE_MLB:.mlb=.mlb.d)
-	-$(RM) example/MLParser/ml.grm.*
+	-$(RM) example/MLParser/ml.grm.sml
+	-$(RM) example/MLParser/ml.grm.sig
+	-$(RM) example/MLParser/ml.grm.desc
 	-$(RM) example/MLParser/Absyn.ppg.sml
 	-$(RM) example/FormatExpressionParser/Parser.grm.*
 	-$(RM) example/FormatExpressionParser/Lexer.lex.sml

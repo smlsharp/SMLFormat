@@ -1,7 +1,8 @@
 bin/
 .cm/
 sources
-*.mlb.d
+*.o
+*.d
 # heap image
 *.x86-linux
 *.amd64-linux
@@ -16,3 +17,4 @@ generator/mlton/smlformat*
 *.lex.sml
 # smlformat
 *.ppg.sml
+Makefile

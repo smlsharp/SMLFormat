@@ -2,7 +2,13 @@
  *
  * Copyright 1989,1992 by AT&T Bell Laboratories
  *)
+(*
+2012-3-22 ohori defuncterized 
 
+The only use is in MLParser as
+  structure MLLrVals = MLLrValsFun(structure Token = LrParser.Token)
+added header and footer
+*)
 open Ast AstUtil FormatTemplate
 
 fun markexp (e, _, _) = e
@@ -22,7 +28,7 @@ fun markinstance (i as MarkInstance _, _, _) = i
 fun qidToString [id] = id
   | qidToString (head::tail) = head ^ "." ^ (qidToString tail)
 
-  %%
+%%
   %term
       EOF | SEMICOLON
     | ID of string | TYVAR of string
@@ -252,6 +258,10 @@ fun qidToString [id] = id
 %value STRING ("")
 %value CHAR ("a")
 
+%header (
+  structure Token = LrParser.Token
+  structure MLLrVals
+)
 %%
 
 int : INT (INT)

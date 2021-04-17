@@ -10,7 +10,7 @@ include @top_builddir@/commonrule
 
 VPATH = @srcdir_smlformat@
 
-TARGETS = smlformat
+TARGETS = bin/smlformat
 
 LEXFILES =  $(srcdir)/generator/main/ml.lex
 YACCFILES = $(srcdir)/generator/main/ml.grm
@@ -20,77 +20,113 @@ GENSOURCES = $(LEXFILES:.lex=.lex.sml) \
              $(YACCFILES:.grm=.grm.sig) \
              $(YACCFILES:.grm=.grm.desc)
 
-SOURCES = generator/main/AST.sig \
-          generator/main/Ast.sml \
-          generator/main/ASTUTIL.sig \
+SOURCES = generator/main/Ast.sml \
           generator/main/AstUtil.sml \
           generator/main/BasicFormattersEnv.sml \
+          generator/main/call-main.sml \
           generator/main/Constants_MLton.sml \
-          generator/main/Constants_SMLNJ.sml \
           generator/main/ErrorQueue.sml \
           generator/main/FormatTemplate.sml \
-          generator/main/FORMATTER_GENERATOR.sig \
           generator/main/FormatterGenerator.sml \
           generator/main/Main.sml \
-          generator/main/MLPARSER.sig \
           generator/main/MLParser.sml \
           generator/main/PPGMain.sml \
-          generator/main/PPGSourceTool.sml \
           generator/main/TokenTable.sml \
           generator/main/Utility.sml \
           $(GENSOURCES)
 
-LIBFILES = smlformatlib.sml \
-           formatlib/main/AssocResolver.sml \
+OBJS    = $(filter %.o,$(SOURCES:.sml=.o))
+DEPENDS = $(filter %.d,$(SOURCES:.sml=.d))
+
+LIBFILES = smlformat-lib.smi \
+           formatlib/main/AssocResolver.smi \
            formatlib/main/BASIC_FORMATTERS.sig \
-           formatlib/main/BasicFormatters.sml \
+           formatlib/main/BasicFormatters.smi \
            formatlib/main/FORMAT_EXPRESSION.sig \
-           formatlib/main/FormatExpression.sml \
-           formatlib/main/FormatExpressionTypes.sml \
-           formatlib/main/FormatExpressionTypes_SMLSharp.sml \
-           formatlib/main/PreProcessedExpression.sml \
-           formatlib/main/PreProcessor.sml \
-           formatlib/main/PrettyPrinter.sml \
+           formatlib/main/FormatExpression.smi \
+           formatlib/main/FormatExpressionTypes.smi \
+           formatlib/main/PreProcessedExpression.smi \
+           formatlib/main/PreProcessor.smi \
+           formatlib/main/PrettyPrinter.smi \
            formatlib/main/PRINTER_PARAMETER.sig \
-           formatlib/main/PrinterParameter.sml \
+           formatlib/main/PrinterParameter.smi \
            formatlib/main/SMLFORMAT.sig \
-           formatlib/main/SMLFormat.sml \
-           formatlib/main/Truncator.sml \
-           formatlib/main/sources.cm \
-           formatlib/main/sources.sml
+           formatlib/main/SMLFormat.smi \
+           formatlib/main/Truncator.smi
 
-all: $(TARGETS)
+LIBOBJS    = $(filter-out smlformat-lib.o,$(filter %.o,$(LIBFILES:.smi=.o)))
+LIBDEPENDS = $(filter-out smlformat-lib.d,$(filter %.d,$(LIBFILES:.smi=.d)))
 
-install: $(TARGETS) $(LIBFILES)
-	$(INSTALL) -d -m 755 '$(DESTDIR)$(bindir)'
-	$(MAKESML) -B '$(DESTDIR)$(bindir)' -H '$(DESTDIR)$(heapdir)' \
-	           -i -o smlformat
+
+.PHONY: all
+all: $(TARGETS) $(LIBOBJS)
+
+
+.PHONY: install
+install: $(TARGETS) $(LIBFILES) $(LIBOBJS)
+	$(INSTALL) -D -m 755 $(TARGETS) '$(DESTDIR)$(bindir)'
 	$(INSTALL) -d -m 755 '$(DESTDIR)$(libdir_smlformat)'
 	$(INSTALL) -d -m 755 '$(DESTDIR)$(libdir_smlformat)/formatlib'
 	$(INSTALL) -d -m 755 '$(DESTDIR)$(libdir_smlformat)/formatlib/main'
-	set -x; for i in $(LIBFILES); do \
+	set -x; for i in $(LIBFILES) $(LIBOBJS); do \
 	  $(INSTALL_DATA) '$(srcdir)/'"$$i" \
 	                  '$(DESTDIR)$(libdir_smlformat)/'"$$i";\
 	done
 
-clean:
-	-rm -rf $(srcdir)/generator/.cm $(srcdir)/generator/CM
-	-rm -rf $(srcdir)/formatlib/.cm $(srcdir)/formatlib/CM
-	-rm -f $(GENSOURCES)
-	$(MAKESML) -r -o smlformat
 
-smlformat: generator/main/sources.cm $(SOURCES)
-	$(MAKESML) -o $@ $(srcdir)/generator/main/sources.cm
+bin/smlformat: $(srcdir)/generator/main/call-main.smi $(OBJS)
+	@echo "  SML# [$@]"
+	@$(MAKESML) $(SMLFLAGS) -o $@ $<
 
+
+%.o: %.sml
+	@echo "  SML# [$@]"
+	@$(MAKESML) $(SMLFLAGS) -c $<
+
+
+%.d: %.sml
+	@echo "  GEN [$@]"
+	@$(SHELL) -ec '$(MAKESML) -MM $(SMLFLAGS) $< \
+		| sed "s|\(.\)\.o[ :]*|\1.o $@ : |g" > $@; \
+		[ -s $@ ] || rm -rf $@'
+
+
+# remove default rules
+%.lex:
 $(srcdir)/generator/main/ml.lex.sml: generator/main/ml.lex
-	$(MLLEX) $(srcdir)/generator/main/ml.lex
+	@echo "  [MLLex] $@"
+	@$(MLLEX) $(srcdir)/generator/main/ml.lex
 
-$(srcdir)/generator/main/ml.grm.sml $(srcdir)/generator/main/ml.grm.sig: generator/main/ml.grm
-	$(MLYACC) $(srcdir)/generator/main/ml.grm
+
+# remove default rules
+%.grm:
+$(srcdir)/generator/main/ml.grm.sml $(srcdir)/generator/main/ml.grm.sig: $(srcdir)/generator/main/ml.grm
+	@echo "  [MLYacc] $@"
+	@$(MLYACC) $(srcdir)/generator/main/ml.grm
+
+
+.PHONY: doc
+doc: doc/api/index.html
+
 
 doc/api/index.html: $(srcdir)/formatlib/smldoc.cfg $(LIBFILES) 
-	-rm -rf ./doc/api
 	mkdir -p ./doc/api
 	$(SMLDOC) -a $(srcdir)/formatlib/smldoc.cfg --directory=./doc/api
 
-# Makefile.in ends here.
+
+ifeq (,$(findstring $(MAKECMDGOALS),clean))
+include $(DEPENDS)
+include $(LIBDEPENDS)
+endif
+
+
+.PHONY: clean
+clean:
+	-rm -f $(GENSOURCES)
+	-rm -f $(TARGETS)
+	-rm -f $(OBJS) $(LIBOBJS)
+	-rm -f $(DEPENDS)
+	-rm -f $(LIBDEPENDS)
+	-rm -rf ./doc/api
+
+# # Makefile.in ends here.

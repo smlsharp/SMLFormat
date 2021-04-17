@@ -57,7 +57,7 @@ fun dec (ri as ref i) = (ri := i-1)
 %% 
 %reject
 %s A FC FCC S F Q AQ L LL LLC LLCQ;
-%header (functor MLLexFun(structure Tokens : ML_TOKENS));
+%header (functor MLLexFun(structure Tokens : ML_TOKENS) : ARG_LEXER);
 %arg (arg as 
 {
   brack_stack,
