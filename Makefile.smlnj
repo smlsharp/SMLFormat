@@ -36,10 +36,11 @@ PPG_EXT         := cmtool/.cm/$(CM_SUFFIX)/ppg-ext.cm
 SMLFORMAT_TOOL  := cmtool/.cm/$(CM_SUFFIX)/smlformat-tool.cm
 
 DEPENDS         := generator/main/sources.cm.d \
+                   formatlib/test/sources.cm.d \
                    smlformat-lib.cm.d \
                    smlformatlib.cm.d
 
-# TEST_TARGET     := $(BINDIR)/SMLDocTest.$(HEAP_SUFFIX)
+TEST_TARGET     := bin/formattest.$(HEAP_SUFFIX)
 
 
 # A wrapper of ml-makedepend
@@ -118,6 +119,10 @@ generator/main/sources.cm.d: %.cm.d: %.cm
 	$(call mldepends,$(SMLFORMAT_IMAGE))
 
 
+formatlib/test/sources.cm.d: %.cm.d: %.cm
+	$(call mldepends,$(dir $<).cm/$(CM_SUFFIX))
+
+
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
   include $(DEPENDS)
 endif
@@ -162,21 +167,16 @@ install-doc: doc
 	@echo "================================================================"
 
 
-# 
-# .PHONY: example
-# example: basis-doc
-# 
-# 
-# $(TEST_TARGET): src/test/.cm/$(CM_SUFFIX)
-# 	@install -d $(dir $@)
-# 	$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $(patsubst %/.cm/$(CM_SUFFIX),%/sources.cm,$<) TestMain.main $@
-# 
-# 
-# .PHONY: test
-# test: $(TEST_TARGET)
-# 	$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$<
-# 
-# 
+$(TEST_TARGET): formatlib/test/.cm/$(CM_SUFFIX)
+	@install -d $(dir $@)
+	$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $(patsubst formatlib/test/.cm/$(CM_SUFFIX),formatlib/test/sources.cm,$<) TestMain.test\' $@
+
+
+.PHONY: test
+test: $(TEST_TARGET)
+	$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$<
+
+
 .PHONY: clean
 clean:
 	-$(RM) -r .cm/
@@ -189,8 +189,7 @@ clean:
 	-$(RM) $(SMLFORMAT_LIB)
 	-$(RM) $(SMLFORMAT_LIB_COMPAT)
 	-$(RM) $(DEPENDS)
-	# -$(RM) $(TEST)
-	# -$(RM) $(EXAMPLES)
+	-$(RM) $(TEST_TARGET)
 	-$(RM) -r doc/api
 	-$(RM) generator/main/ml.lex.sml
 	-$(RM) generator/main/ml.grm.sig
