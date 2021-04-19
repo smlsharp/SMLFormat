@@ -1,0 +1,190 @@
+
+SML             := sml
+# -32 or -64
+# empty is default
+SML_BITMODE     :=
+SML_FLAGS       :=
+HEAP_SUFFIX     := $(shell $(SML) $(SML_BITMODE) @SMLsuffix)
+
+# directory of CM product
+CM_SUFFIX       := $(shell $(SML) $(SML_BITMODE) < script/suffix.sml 2>&1 >/dev/null)
+
+MLBUILD         := ml-build
+MLBUILD_FLAGS   :=
+
+MLDEPENDS       := ml-makedepend
+MLDEPENDS_FLAGS := -n
+
+# for profiling, set '-DMEASURE'
+SML_DULIST      :=
+
+SMLDOC          := smldoc
+SMLDOC_ARGFILE  := formatlib/smldoc.cfg
+
+PREFIX          := /usr/local/sml
+BINDIR          := $(PREFIX)/bin
+LIBDIR          := $(PREFIX)/lib
+DOCDIR          := $(PREFIX)/doc
+HEAPDIR         := $(BINDIR)/.heap
+
+SMLFORMAT       := bin/smlformat
+SMLFORMAT_IMAGE := bin/.heap/smlformat.$(HEAP_SUFFIX)
+SMLFORMAT_LIB   := .cm/$(CM_SUFFIX)/smlformat-lib.cm
+SMLFORMAT_LIB_COMPAT := .cm/$(CM_SUFFIX)/smlformatlib.cm
+
+DEPENDS         := generator/main/sources.cm.d \
+                   smlformat-lib.cm.d \
+                   smlformatlib.cm.d
+
+# TEST_TARGET     := $(BINDIR)/SMLDocTest.$(HEAP_SUFFIX)
+
+
+# A wrapper of ml-makedepend
+# $(1) - the 1st target of the generated rule.
+# $@   - name of the target to generate the rule.
+define mldepends
+	@echo "  [GEN] $@"
+	@truncate --size 0 $@
+	$(MLDEPENDS) $(MLDEPENDS_FLAGS) $(SML_BITMODE) $(SML_DULIST) -f $@ $< $(1)
+	sed -i -e "s|^\([^#][^:]\+\):|\1 $@:|" $@
+endef
+
+
+all: smlformat smlformat-lib
+
+
+.PHONY: smlformat
+smlformat: smlformat-nodoc doc
+
+
+.PHONY: smlformat-lib
+smlformat-lib: smlformat-lib-nodoc doc
+
+
+.PHONY: smlformat-nodoc
+smlformat-nodoc: $(SMLFORMAT)
+
+
+.PHONY: smlformat-lib-nodoc
+smlformat-lib-nodoc: $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT)
+
+
+$(SMLFORMAT): $(SMLFORMAT_IMAGE)
+	sed \
+		-e "s|@SML@|$(SML)|" \
+		-e "s|@SML_FLAGS@|$(SML_BITMODE) $(SML_FLAGS)|" \
+		-e "s|@HEAP_IMAGE@|$<|" \
+		script/smlformat.in > $@
+	chmod +x $@
+
+
+$(SMLFORMAT_IMAGE): generator/main/sources.cm
+	@echo "  [SMLNJ] $@"
+	@install -d $(dir $@)
+	@$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $< Main.main $@
+
+
+$(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT): .cm/$(CM_SUFFIX)/%.cm: %.cm
+	@echo "  [SMLNJ] $@"
+	# force rebuilding even for 'stabilize true'
+	@$(RM) $@
+	@echo 'CM.stabilize true "$<";' | $(SML) $(SML_BITMODE) $(SML_DULIST)
+
+
+smlformat-lib.cm.d smlformatlib.cm.d: %.cm.d: %.cm
+	$(RM) .cm/$(CM_SUFFIX)/$<
+	$(call mldepends,.cm/$(CM_SUFFIX)/$<)
+
+
+generator/main/sources.cm.d: %.cm.d: %.cm
+	$(call mldepends,$(SMLFORMAT_IMAGE))
+
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+  include $(DEPENDS)
+endif
+
+
+.PHONY: install-nodoc
+install-nodoc: $(SMLFORMAT) $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT)
+	@install -D -m 755 -t $(BINDIR)                                    $(SMLFORMAT)
+	@install -D -m 644 -t $(BINDIR)/.heap                              $(SMLFORMAT_IMAGE)
+	@install -D -m 644 -t $(LIBDIR)/smlformat-lib.cm/.cm/$(CM_SUFFIX)  $(SMLFORMAT_LIB)
+	@install -D -m 644 -t $(LIBDIR)/smlformatlib.cm/.cm/$(CM_SUFFIX)   $(SMLFORMAT_LIB_COMPAT)
+	@echo "================================================================"
+	@echo "Add enties to your pathconfig (e.g. ~/.smlnj-pathconfig):"
+	@echo "\tsmlformat-lib.cm $(LIBDIR)/smlformat-lib"
+	@echo "\tsmlformatlib.cm $(LIBDIR)/smlformatlib"
+	@echo "Then you can load the library like"
+	@echo "\t- CM.make \"$$/smlformat-lib.cm\"; or"
+	@echo "\t- CM.make \"$$/smlformatlib.cm\";"
+	@echo "================================================================"
+
+
+
+.PHONY: install
+install: install-doc install-nodoc
+
+
+.PHONY: doc
+doc:
+	@echo "  [SMLDoc]"
+	@$(RM) -r doc/api
+	@install -d doc/api
+	@$(SMLDOC) -c UTF-8 -a $(SMLDOC_ARGFILE) -d doc/api
+
+
+.PHONY: install-doc
+install-doc: doc
+	@install -d $(DOCDIR)
+	@cp -prT doc $(DOCDIR)/smlformat-lib
+	@echo "================================================================"
+	@echo "Generated API Documents of SMLFormat"
+	@echo "\t$(DOCDIR)/smlformat-lib"
+	@echo "================================================================"
+
+
+# 
+# .PHONY: example
+# example: basis-doc
+# 
+# 
+# $(TEST_TARGET): src/test/.cm/$(CM_SUFFIX)
+# 	@install -d $(dir $@)
+# 	$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $(patsubst %/.cm/$(CM_SUFFIX),%/sources.cm,$<) TestMain.main $@
+# 
+# 
+# .PHONY: test
+# test: $(TEST_TARGET)
+# 	$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$<
+# 
+# 
+.PHONY: clean
+clean:
+	-$(RM) -r .cm/
+	-$(RM) -r cmtool/.cm/
+	-$(RM) -r formatlib/main/.cm/
+	-$(RM) -r formatlib/test/.cm/
+	-$(RM) -r generator/main/.cm/
+	-$(RM) $(SMLFORMAT)
+	-$(RM) $(SMLFORMAT_LIB)
+	-$(RM) $(SMLFORMAT_LIB_COMPAT)
+	-$(RM) $(DEPENDS)
+	# -$(RM) $(TEST)
+	# -$(RM) $(EXAMPLES)
+	-$(RM) -r doc/api
+	-$(RM) generator/main/ml.lex.sml
+	-$(RM) generator/main/ml.grm.sig
+	-$(RM) generator/main/ml.grm.sml
+	-$(RM) generator/main/ml.grm.desc
+	-$(RM) example/MLParser/ml.grm.sig
+	-$(RM) example/MLParser/ml.grm.sml
+	-$(RM) example/MLParser/ml.grm.desc
+	-$(RM) example/MLParser/ml.lex.sml
+	-$(RM) example/FormatExpressionParser/Parser.grm.sig
+	-$(RM) example/FormatExpressionParser/Parser.grm.sml
+	-$(RM) example/FormatExpressionParser/Parser.grm.desc
+	-$(RM) example/FormatExpressionParser/Lexer.lex.sml
+	-$(RM) example/Overview/Types.ppg.sml
+	-$(RM) example/Overview/Examples.ppg.sml
+
