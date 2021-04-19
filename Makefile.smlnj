@@ -30,7 +30,10 @@ HEAPDIR         := $(BINDIR)/.heap
 SMLFORMAT       := bin/smlformat
 SMLFORMAT_IMAGE := bin/.heap/smlformat.$(HEAP_SUFFIX)
 SMLFORMAT_LIB   := .cm/$(CM_SUFFIX)/smlformat-lib.cm
-SMLFORMAT_LIB_COMPAT := .cm/$(CM_SUFFIX)/smlformatlib.cm
+SMLFORMAT_LIB_COMPAT := \
+                   .cm/$(CM_SUFFIX)/smlformatlib.cm
+PPG_EXT         := cmtool/.cm/$(CM_SUFFIX)/ppg-ext.cm
+SMLFORMAT_TOOL  := cmtool/.cm/$(CM_SUFFIX)/smlformat-tool.cm
 
 DEPENDS         := generator/main/sources.cm.d \
                    smlformat-lib.cm.d \
@@ -69,6 +72,14 @@ smlformat-nodoc: $(SMLFORMAT)
 smlformat-lib-nodoc: $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT)
 
 
+.PHONY: ppg-ext
+ppg-ext: $(PPG_EXT)
+
+
+.PHONY: smlformat-tool
+smlformat-tool: $(SMLFORMAT_TOOL)
+
+
 $(SMLFORMAT): $(SMLFORMAT_IMAGE)
 	sed \
 		-e "s|@SML@|$(SML)|" \
@@ -91,6 +102,13 @@ $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT): .cm/$(CM_SUFFIX)/%.cm: %.cm
 	@echo 'CM.stabilize true "$<";' | $(SML) $(SML_BITMODE) $(SML_DULIST)
 
 
+$(PPG_EXT) $(SMLFORMAT_TOOL): cmtool/.cm/$(CM_SUFFIX)/%.cm: cmtool/%.cm
+	@echo "  [SMLNJ] $@"
+	# force rebuilding even for 'stabilize true'
+	#@$(RM) $@
+	@echo 'CM.stabilize true "$<";' | $(SML) $(SML_BITMODE) $(SML_DULIST)
+
+
 smlformat-lib.cm.d smlformatlib.cm.d: %.cm.d: %.cm
 	$(RM) .cm/$(CM_SUFFIX)/$<
 	$(call mldepends,.cm/$(CM_SUFFIX)/$<)
@@ -106,20 +124,20 @@ endif
 
 
 .PHONY: install-nodoc
-install-nodoc: $(SMLFORMAT) $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT)
+install-nodoc: $(SMLFORMAT) $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT) $(PPG_EXT) $(SMLFORMAT_TOOL)
 	@install -D -m 755 -t $(BINDIR)                                    $(SMLFORMAT)
 	@install -D -m 644 -t $(BINDIR)/.heap                              $(SMLFORMAT_IMAGE)
 	@install -D -m 644 -t $(LIBDIR)/smlformat-lib.cm/.cm/$(CM_SUFFIX)  $(SMLFORMAT_LIB)
 	@install -D -m 644 -t $(LIBDIR)/smlformatlib.cm/.cm/$(CM_SUFFIX)   $(SMLFORMAT_LIB_COMPAT)
+	@install -D -m 644 -t $(LIBDIR)/ppg-ext.cm/.cm/$(CM_SUFFIX)        $(PPG_EXT)
+	@install -D -m 644 -t $(LIBDIR)/smlformat-tool.cm/.cm/$(CM_SUFFIX) $(SMLFORMAT_TOOL)
 	@echo "================================================================"
 	@echo "Add enties to your pathconfig (e.g. ~/.smlnj-pathconfig):"
-	@echo "\tsmlformat-lib.cm $(LIBDIR)/smlformat-lib"
-	@echo "\tsmlformatlib.cm $(LIBDIR)/smlformatlib"
-	@echo "Then you can load the library like"
-	@echo "\t- CM.make \"$$/smlformat-lib.cm\"; or"
-	@echo "\t- CM.make \"$$/smlformatlib.cm\";"
+	@echo "\tsmlformat-lib.cm  $(LIBDIR)/smlformat-lib.cm"
+	@echo "\tsmlformatlib.cm   $(LIBDIR)/smlformatlib.cm"
+	@echo "\tppg-ext.cm        $(LIBDIR)/ppg-ext.cm"
+	@echo "\tsmlformat-tool.cm $(LIBDIR)/smlformat-tool.cm"
 	@echo "================================================================"
-
 
 
 .PHONY: install
@@ -167,6 +185,7 @@ clean:
 	-$(RM) -r formatlib/test/.cm/
 	-$(RM) -r generator/main/.cm/
 	-$(RM) $(SMLFORMAT)
+	-$(RM) $(SMLFORMAT_IMAGE)
 	-$(RM) $(SMLFORMAT_LIB)
 	-$(RM) $(SMLFORMAT_LIB_COMPAT)
 	-$(RM) $(DEPENDS)
