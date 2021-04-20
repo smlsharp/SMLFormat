@@ -215,7 +215,7 @@ define build-example
 	$(foreach dep,$(2),--eval 'PolyML.loadModule "$(dep)"') \
 	--eval 'PolyML.loadModule "$(SMLFORMAT_LIB)"' \
 	--eval 'load "example/$(1)/load.sml"' \
-	--eval 'PolyML.export ("$@", Main.main)'
+	--eval 'PolyML.export ("$@", Main.main'"'"')'
 endef
 
 obj/mlparser.o: $(MLYACC_LIB) $(SMLFORMAT_LIB) $(MLPARSER_SRC)

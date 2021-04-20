@@ -1,1 +1,1 @@
-Main.main();
+Main.main'();

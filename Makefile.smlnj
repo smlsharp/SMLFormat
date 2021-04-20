@@ -46,8 +46,6 @@ EXAMPLE_TARGET  := bin/CMIntegration.$(HEAP_SUFFIX) \
                    bin/MLParser.$(HEAP_SUFFIX) \
                    bin/Overview.$(HEAP_SUFFIX)
 
-$(EXAMPLE_TARGET): CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
-
 # A wrapper of ml-makedepend
 # $(1) - the 1st target of the generated rule.
 # $@   - name of the target to generate the rule.
@@ -174,7 +172,7 @@ install-doc: doc
 
 $(TEST_TARGET): formatlib/test/.cm/$(CM_SUFFIX)
 	@install -d $(dir $@)
-	$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $(patsubst formatlib/test/.cm/$(CM_SUFFIX),formatlib/test/sources.cm,$<) TestMain.test\' $@
+	$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) formatlib/test/sources.cm TestMain.test\' $@
 
 
 .PHONY: test
@@ -182,20 +180,15 @@ test: $(TEST_TARGET)
 	$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$<
 
 
-$(EXAMPLE_TARGET): bin/%.$(HEAP_SUFFIX): example/%/sources.cm
+$(EXAMPLE_TARGET): $(SMLFORMAT) $(PPG_EXT) $(SMLFORMAT_TOOL)
+$(EXAMPLE_TARGET): bin/%.$(HEAP_SUFFIX): example/%/sources.cm cmtool/local_pathconfig
 	@install -d $(dir $@)
-	$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $< Main.main $@
+	CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig \
+		$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $< Main.main $@
 
 
 .PHONY: example
 example: $(EXAMPLE_TARGET)
-	@for exe in $^;do \
-		echo "$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$${exe}" ; \
-		$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=${ext} ;
-	done
-	# $(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$<
-	#smlunit
-	# $(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $(patsubst %/.cm/amd64-unix,%/sources.cm,$<) Main.main $(basename $@)
 
 
 .PHONY: clean

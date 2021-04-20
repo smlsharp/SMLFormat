@@ -247,7 +247,7 @@ struct
                )
       end
 
-  fun main () =
+  fun main (name, args) =
       let
         val initialSource =
             {
@@ -266,7 +266,10 @@ struct
               verbose = ref false
             } : lexarg;
       in
-        processInput initialSource
-        handle EndOfParse => ()
+        (processInput initialSource; OS.Process.success)
+        handle EndOfParse => OS.Process.failure
       end
+
+  fun main' () =
+    ignore (main (CommandLine.name(), CommandLine.arguments()))
 end
