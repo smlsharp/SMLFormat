@@ -41,7 +41,12 @@ DEPENDS         := generator/main/sources.cm.d \
                    smlformatlib.cm.d
 
 TEST_TARGET     := bin/formattest.$(HEAP_SUFFIX)
+EXAMPLE_TARGET  := bin/CMIntegration.$(HEAP_SUFFIX) \
+                   bin/FormatExpressionParser.$(HEAP_SUFFIX) \
+                   bin/MLParser.$(HEAP_SUFFIX) \
+                   bin/Overview.$(HEAP_SUFFIX)
 
+$(EXAMPLE_TARGET): CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
 
 # A wrapper of ml-makedepend
 # $(1) - the 1st target of the generated rule.
@@ -177,6 +182,22 @@ test: $(TEST_TARGET)
 	$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$<
 
 
+$(EXAMPLE_TARGET): bin/%.$(HEAP_SUFFIX): example/%/sources.cm
+	@install -d $(dir $@)
+	$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $< Main.main $@
+
+
+.PHONY: example
+example: $(EXAMPLE_TARGET)
+	@for exe in $^;do \
+		echo "$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$${exe}" ; \
+		$(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=${ext} ;
+	done
+	# $(SML) $(SML_BITMODE) $(SML_DULIST) $(SML_FLAGS) @SMLload=$<
+	#smlunit
+	# $(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $(patsubst %/.cm/amd64-unix,%/sources.cm,$<) Main.main $(basename $@)
+
+
 .PHONY: clean
 clean:
 	-$(RM) -r .cm/
@@ -190,6 +211,7 @@ clean:
 	-$(RM) $(SMLFORMAT_LIB_COMPAT)
 	-$(RM) $(DEPENDS)
 	-$(RM) $(TEST_TARGET)
+	-$(RM) $(EXAMPLE_TARGET)
 	-$(RM) -r doc/api
 	-$(RM) generator/main/ml.lex.sml
 	-$(RM) generator/main/ml.grm.sig
