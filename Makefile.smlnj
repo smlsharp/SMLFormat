@@ -41,10 +41,14 @@ DEPENDS         := generator/main/sources.cm.d \
                    smlformatlib.cm.d
 
 TEST_TARGET     := bin/formattest.$(HEAP_SUFFIX)
+
 EXAMPLE_TARGET  := bin/CMIntegration.$(HEAP_SUFFIX) \
                    bin/FormatExpressionParser.$(HEAP_SUFFIX) \
-                   bin/MLParser.$(HEAP_SUFFIX) \
-                   bin/Overview.$(HEAP_SUFFIX)
+                   bin/MLParser.$(HEAP_SUFFIX)
+
+OVERVIEW_SRC    := example/Overview/Examples.ppg \
+                   example/Overview/Types.ppg \
+                   example/Overview/sources.cm
 
 # A wrapper of ml-makedepend
 # $(1) - the 1st target of the generated rule.
@@ -172,7 +176,7 @@ install-doc: doc
 
 $(TEST_TARGET): formatlib/test/.cm/$(CM_SUFFIX)
 	@install -d $(dir $@)
-	$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) formatlib/test/sources.cm TestMain.test\' $@
+	@$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) formatlib/test/sources.cm TestMain.test\' $@
 
 
 .PHONY: test
@@ -182,13 +186,43 @@ test: $(TEST_TARGET)
 
 $(EXAMPLE_TARGET): $(SMLFORMAT) $(PPG_EXT) $(SMLFORMAT_TOOL)
 $(EXAMPLE_TARGET): bin/%.$(HEAP_SUFFIX): example/%/sources.cm cmtool/local_pathconfig
+	@echo "  [SMLNJ] $(@.$(HEAP_SUFFIX):=)"
 	@install -d $(dir $@)
-	CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig \
+	@CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig \
 		$(MLBUILD) $(SML_BITMODE) $(SML_DULIST) $(MLBUILD_FLAGS) $< Main.main $@
 
 
+# .ppg
+OVERVIEW_PPG    := $(foreach ppg,$(filter %.ppg,$(OVERVIEW_SRC)),$(ppg).sml)
+OVERVIEW_TARGET := $(foreach file,\
+                     $(filter %.sml,$(OVERVIEW_PPG) $(OVERVIEW_SRC)),\
+					 $(dir $(file)).cm/SKEL/$(notdir $(file)))
+
+$(OVERVIEW_TARGET): example/Overview/sources.cm cmtool/local_pathconfig
+	@echo "  [SMLNJ] example/Overview"
+	@echo 'CM.stabilize false "$<";' | CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig $(SML) $(SML_BITMODE) $(SML_DULIST)
+
+
+example/Overview/sources.cm.d: %.cm.d: %.cm cmtool/local_pathconfig
+	@echo "  [GEN] $@"
+	@truncate --size 0 $@
+	# depends on local path
+	@CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig \
+	$(MLDEPENDS) $(MLDEPENDS_FLAGS) $(SML_BITMODE) $(SML_DULIST) -f $@ $< '$(OVERVIEW_TARGET)'
+	@sed -i -e "s|^\([^#][^:]\+\):|\1 $@:|" $@
+
+
+ifneq (,$(findstring example,$(MAKECMDGOALS)))
+  include example/Overview/sources.cm.d
+endif
+
+
+.PHONY: example_overview
+example_overview: $(OVERVIEW_TARGET)
+
+
 .PHONY: example
-example: $(EXAMPLE_TARGET)
+example: $(EXAMPLE_TARGET) example_overview
 
 
 .PHONY: clean
@@ -205,6 +239,10 @@ clean:
 	-$(RM) $(DEPENDS)
 	-$(RM) $(TEST_TARGET)
 	-$(RM) $(EXAMPLE_TARGET)
+	-$(RM) -r example/CMIntegration/.cm
+	-$(RM) -r example/FormatExpressionParser/.cm
+	-$(RM) -r example/MLParser/.cm
+	-$(RM) -r example/Overview/.cm
 	-$(RM) -r doc/api
 	-$(RM) generator/main/ml.lex.sml
 	-$(RM) generator/main/ml.grm.sig
