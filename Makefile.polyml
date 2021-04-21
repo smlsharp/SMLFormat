@@ -3,7 +3,7 @@
 POLYML         := poly
 POLYMLC        := polyc
 POLYMLFLAGS    := -q --error-exit \
-                  --eval 'PolyML.suffixes := ".sig"::(!PolyML.suffixes)' \
+                  --eval 'PolyML.suffixes := ".sig"::".ppg.sml"::(!PolyML.suffixes)' \
                   --use ./script/load.sml
 
 MLLEX          := mllex-polyml
@@ -101,13 +101,14 @@ FORMAT_EXPR_PARSER_SRC := \
                   example/FormatExpressionParser/Main.sml
 
 OVERVIEW_SRC   := example/Overview/Examples.ppg.sml \
-                  example/Overview/Types.ppg.sml
+                  example/Overview/Types.ppg.sml \
+                  example/Overview/ml_bind.sml
 
 TEST           := bin/formatlib-test
 
 EXAMPLES       := bin/mlparser \
                   bin/fmt_expr_parser \
-                  bin/overview
+                  bin/overview.poly
 
 
 define build-module
@@ -138,7 +139,7 @@ smlformat-nodoc: $(SMLFORMAT)
 smlformat-lib-nodoc: $(SMLFORMAT_LIB)
 
 
-$(SMLFORMAT) $(TEST) $(EXAMPLES): bin/%: obj/%.o
+$(SMLFORMAT) $(TEST) $(filter-out bin/overview.poly,$(EXAMPLES)): bin/%: obj/%.o
 	@echo "  [POLYMLC] $@"
 	@$(POLYMLC) -o $@ $^
 
@@ -210,7 +211,7 @@ test: $(TEST)
 
 define build-example
 @echo "  [POLYML] $@"
-echo "" | $(POLYML) $(POLYMLFLAGS) \
+@echo "" | $(POLYML) $(POLYMLFLAGS) \
 	$(foreach dep,$(2),--eval 'PolyML.loadModule "$(dep)"') \
 	--eval 'PolyML.loadModule "$(SMLFORMAT_LIB)"' \
 	--eval 'load "example/$(1)/load.sml"' \
@@ -223,8 +224,13 @@ obj/mlparser.o: $(MLYACC_LIB) $(SMLFORMAT_LIB) $(MLPARSER_SRC)
 obj/fmt_expr_parser.o: $(MLYACC_LIB) $(SMLFORMAT_LIB) $(FORMAT_EXPR_PARSER_SRC)
 	$(call build-example,FormatExpressionParser,$<)
 
-obj/overview.o: $(SMLFORMAT_LIB) $(OVERVIEW_SRC)
-	$(call build-example,Overview,$<)
+bin/overview.poly: $(SMLFORMAT_LIB) $(OVERVIEW_SRC)
+	@echo "  [POLYML] $@"
+	@echo "" | $(POLYML) $(POLYMLFLAGS) \
+		--eval 'PolyML.loadModule "$<"' \
+		--eval 'PolyML.make "example/Overview"' \
+		--use example/Overview/export.sml \
+		--eval 'PolyML.SaveState.saveModule ("$@", OverviewExample)'
 
 
 .PHONY: example
