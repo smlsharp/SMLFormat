@@ -78,148 +78,67 @@ $ make doc
 
 ## SML/NJ
 
-### Build smlformat
+### Build
 
-To build the pretty printer generator first build heap image by `ml-build` like below:
-This must be done in 32bit mode, even if you use 64bit architecture host.
-
-```sh
-$ ml-build -32 smlformat.cm Main.main bin/smlformat
-.
-.
-[creating directory .cm/x86-unix]
-[code: 328, data: 72, env: 39 bytes]
-```
-
-This command build a heap image named `smlformat.x86-linux`.
-Next it is needed to convert the image to an executable.
+To build `SMLFormat`, run the default target of `Makefile.smlnj`.
 
 ```sh
-$ SMLNJ_HOME=/path/to/root/of/smlnj bin/heap2exec-fix -32 bin/smlformat.x86-linux bin/smlformat
+$ make -f Makefile.smlnj
 ```
 
-
-### Build smlformat-lib
-
-To build the formatter library, build `smlformat-lib.cm` using CM with _stabilize_ flag.
+The default target generates `smlformat`, `smlformat-lib`, `smlformatlib`, `ppg-ext` and `smlformat-tool` and documentations of the `SMLFormat` api.
+If you do not need the documentations, run the `smlformat-nodoc` target.
 
 ```sh
-echo 'CM.stabilize true "smlformat-lib.cm";'         | sml
+$ make -f Makefile.smlnj smlformat-nodoc
 ```
-
-Build ppg plugin in the same way.
-
-
-```sh
-echo 'CM.stabilize true "cmtool/ppg-ext.cm";'        | sml
-echo 'CM.stabilize true "cmtool/smlformat-tool.cm";' | sml
-```
-
-`smlformat-lib` and ppg plugin are supported for both 32bit and 64bit mode.
-
-
-### Build smlformatlib
-
-To build the formatter library, build `smlformatlib.cm` using CM with _stabilize_ flag.
-
-```sh
-echo 'CM.stabilize true "smlformatlib.cm";'          | sml
-```
-
-Build ppg plugin in the same way.
-
-
-```sh
-echo 'CM.stabilize true "cmtool/ppg-ext.cm";'        | sml
-echo 'CM.stabilize true "cmtool/smlformat-tool.cm";' | sml
-```
-
-`smlformatlib` and ppg plugin are supported for both 32bit and 64bit mode.
 
 
 ### Install
 
-Prepare the install directories.
+To install `SMLFormat`, run the `install` target.
 
 ```sh
-$ LOCAL_LIB=~/.smlnj/lib
-$ LOCAL_BIN=~/.smlnj/bin
-$ mkdir -p $LOCAL_LIB
-$ mkdir -p $LOCAL_BIN
+$ make -f Makefile.smlnj install
 ```
 
-To install `smlformat`, copy the executable binary.
+To change the installation directory, specify `PREFIX`:
 
 ```sh
-$ install -m 755 bin/smlformat $LOCAL_BIN
+$ make -f Makefile.smlnj install PREFIX=~/.sml/smlnj/110.99
 ```
 
-To install library and plugins:
+If you do not need the documentations, run the `install-nodoc` target.
 
 ```sh
-$ mkdir -p $LOCAL_LIB/smlformat-lib.cm
-$ mkdir -p $LOCAL_LIB/ppg-ext.cm
-$ mkdir -p $LOCAL_LIB/smlformat-tool.cm
-$ cp -R        .cm $LOCAL_LIB/smlformat-lib.cm
-$ cp -R cmtool/.cm $LOCAL_LIB/ppg-ext.cm
-$ cp -R cmtool/.cm $LOCAL_LIB/smlformat-tool.cm
+$ make -f Makefile.smlnj install-nodoc
 ```
 
-And for backward compatibility, copy to the old path:
+
+### Doc
+
+To generate the documentations of `SMLFormat`, run the `doc` target.
 
 ```sh
-$ mkdir -p $LOCAL_LIB/smlformatlib.cm
-$ cp -R .cm $LOCAL_LIB/smlformatlib.cm
-```
-
-Finally, register installed files.
-
-
-```sh
-$ cat <<EOF >> ~/.smlnj-pathconfig
-smlformatlib.cm   $LOCAL_LIB/smlformatlib.cm
-smlformat-lib.cm  $LOCAL_LIB/smlformat-lib.cm
-ppg-ext.cm        $LOCAL_LIB/ppg-ext.cm
-smlformat-tool.cm $LOCAL_LIB/smlformat-tool.cm
-smlformat         $LOCAL_BIN
-EOF
+$ make -f Makefile.smlnj doc
 ```
 
 
 ### Test
 
-Performs unit tests by loading `formatlib/test/sources.cm`.
-
-```
-- CM.make "formatlib/test/sources.cm";
-[autoloading]
-.
-.
-val it = true : bool
-- TestMain.test();
-.....................................................................................F.........................................
-tests = 127, failures = 1, errors = 0
-Failures:
-//11/SMLFormatTest0011/5/testGuard0101: expected:<"ab
-cdef">, actual:<"a
-b
-cdef">
-Errors:
-val it = () : unit
-```
-
-
-### Examples
-
-To build examples, load "sources.cm" in each project directories.
-To load an example before install `smlformat-lib` and plugins, run `sml` with special pathconfig file like below:
+To run the unit tests, run the `test` target.
 
 ```sh
-$ CM_LOCAL_PATHCONFIG=cmtool/local_pathconfig sml
-- CM.make "example/<project>/sources.cm";
-.
-.
-val it = true : bool
+$ make -f Makefile.smlnj test
+```
+
+
+### Example
+
+To build examples, run the `example` target.
+
+```sh
+$ make -f Makefile.smlnj example
 ```
 
 
