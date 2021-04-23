@@ -22,9 +22,9 @@ The SMLFormat consists of two components:
 
 ## Dependencies
 
-- mllex
-- mlyacc and mlyacc-lib
-- smlnj-lib
+- mllex ([mllex-polyml] for Poly/ML)
+- mlyacc and mlyacc-lib ([mlyacc-polyml] for Poly/ML)
+- smlnj-lib ([smlnj-lib-polyml] for Poly/ML)
 - smlunit-lib (unit test)
 - smldoc (documentations)
 
@@ -378,7 +378,9 @@ http://www.pllab.riec.tohoku.ac.jp/smlsharp/
 
 YAMATODANI Kiyoshi @2010, Tohoku University.
 
-
+[mllex-polyml]: https://github.com/eldesh/mllex-polyml "MLLex for Poly/ML"
+[mlyacc-polyml]: https://github.com/eldesh/mlyacc-polyml "MLYacc for Poly/ML"
+[smlnj-lib-polyml]: https://github.com/eldesh/smlnjlib-polyml "SMLNJ-LIB for Poly/ML"
 [SMLFormat]: https://www.pllab.riec.tohoku.ac.jp/smlsharp/ja/?SMLFormat "SMLFormat"
 [SMLUnit]: http://www.pllab.riec.tohoku.ac.jp/smlsharp/?SMLUnit "SMLUnit"
 [SMLDoc]: https://www.pllab.riec.tohoku.ac.jp/smlsharp/ja/?SMLDoc "SMLDoc"
