@@ -61,23 +61,23 @@ define mldepends
 endef
 
 
-all: smlformat smlformat-lib
+all: smlformat
 
 
 .PHONY: smlformat
 smlformat: smlformat-nodoc doc
 
 
-.PHONY: smlformat-lib
-smlformat-lib: smlformat-lib-nodoc doc
-
-
 .PHONY: smlformat-nodoc
-smlformat-nodoc: $(SMLFORMAT)
+smlformat-nodoc: smlformat-bin smlformat-lib ppg-ext smlformat-tool
 
 
-.PHONY: smlformat-lib-nodoc
-smlformat-lib-nodoc: $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT)
+.PHONY: smlformat-bin
+smlformat-bin: $(SMLFORMAT)
+
+
+.PHONY: smlformat-lib
+smlformat-lib: $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT)
 
 
 .PHONY: ppg-ext
