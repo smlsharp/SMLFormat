@@ -145,6 +145,7 @@ install-nodoc: $(SMLFORMAT) $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT) $(PPG_EXT) 
 	@install -D -m 644 -t $(LIBDIR)/smlformat-tool.cm/.cm/$(CM_SUFFIX) $(SMLFORMAT_TOOL)
 	@echo "================================================================"
 	@echo "Add enties to your pathconfig (e.g. ~/.smlnj-pathconfig):"
+	@echo "\tsmlformat         $(BINDIR)"
 	@echo "\tsmlformat-lib.cm  $(LIBDIR)/smlformat-lib.cm"
 	@echo "\tsmlformatlib.cm   $(LIBDIR)/smlformatlib.cm"
 	@echo "\tppg-ext.cm        $(LIBDIR)/ppg-ext.cm"
