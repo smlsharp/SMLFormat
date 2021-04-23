@@ -6,13 +6,11 @@ This is **unofficial** repository for [SMLFormat] distribution.
 
 ## What is this
 
+This repository is salvaged from the official SMLFormat distribution (included in SML# 0.90 compiler distribution).
 The SMLFormat consists of two components:
-  formatlib (Pretty Printer library for SML)
-  smlformat (Pretty Printer Generator for SML)
 
 * `smlformat-lib` is a pretty printer library for SML.
 * `smlformat` is a pretty printer generator for SML.
-* salvaged from the official SMLFormat distribution (included in SML# 0.90 compiler distribution)
 
 
 ## What is **not** this
@@ -38,7 +36,6 @@ The SMLFormat consists of two components:
 * SML/NJ
 
     Tested 110.97, 110.98.1
-    32bit mode is required.
 
 * MLton
 
