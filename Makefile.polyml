@@ -113,30 +113,30 @@ EXAMPLES       := bin/mlparser \
 
 define build-module
 @echo "  [POLYML] $@"
-echo "" | $(POLYML) $(POLYMLFLAGS) \
+@echo "" | $(POLYML) $(POLYMLFLAGS) \
 	$(foreach dep,$(3),--eval 'PolyML.loadModule "$(dep)"') \
 	--eval 'load "$(1)/load.sml"' \
 	--eval 'PolyML.export ("$@", $2)'
 endef
 
 
-all: smlformat smlformat-lib
+all: smlformat
 
 
 .PHONY: smlformat
 smlformat: smlformat-nodoc doc
 
 
-.PHONY: smlformat-lib
-smlformat-lib: smlformat-lib-nodoc doc
-
-
 .PHONY: smlformat-nodoc
-smlformat-nodoc: $(SMLFORMAT)
+smlformat-nodoc: smlformat-bin smlformat-lib
 
 
-.PHONY: smlformat-lib-nodoc
-smlformat-lib-nodoc: $(SMLFORMAT_LIB)
+.PHONY: smlformat-bin
+smlformat-bin: $(SMLFORMAT)
+
+
+.PHONY: smlformat-lib
+smlformat-lib: $(SMLFORMAT_LIB)
 
 
 $(SMLFORMAT) $(TEST) $(filter-out bin/overview.poly,$(EXAMPLES)): bin/%: obj/%.o
