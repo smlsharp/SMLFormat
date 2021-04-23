@@ -185,7 +185,7 @@ install-doc: doc
 	@cp -prT doc $(DOCDIR)/smlformat-lib
 	@echo "================================================================"
 	@echo "Generated API Documents of SMLFormat"
-	@echo "\t$(DOCDIR)"
+	@echo "\t$(DOCDIR)/smlformat-lib"
 	@echo "================================================================"
 
 
