@@ -233,6 +233,7 @@ clean:
 	-$(RM) -r formatlib/main/.cm/
 	-$(RM) -r formatlib/test/.cm/
 	-$(RM) -r generator/main/.cm/
+	-$(RM) -r bin/.heap
 	-$(RM) $(SMLFORMAT)
 	-$(RM) $(SMLFORMAT_IMAGE)
 	-$(RM) $(SMLFORMAT_LIB)
@@ -249,6 +250,8 @@ clean:
 	-$(RM) generator/main/ml.grm.sig
 	-$(RM) generator/main/ml.grm.sml
 	-$(RM) generator/main/ml.grm.desc
+	-$(RM) example/CMIntegration/Tree.ppg.sml
+	-$(RM) example/MLParser/Absyn.ppg.sml
 	-$(RM) example/MLParser/ml.grm.sig
 	-$(RM) example/MLParser/ml.grm.sml
 	-$(RM) example/MLParser/ml.grm.desc
@@ -259,4 +262,5 @@ clean:
 	-$(RM) example/FormatExpressionParser/Lexer.lex.sml
 	-$(RM) example/Overview/Types.ppg.sml
 	-$(RM) example/Overview/Examples.ppg.sml
+	-$(RM) example/Overview/sources.cm.d
 
