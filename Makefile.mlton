@@ -1,51 +1,67 @@
 
-MLTON       := mlton
-MLTON_FLAGS += -default-ann "nonexhaustiveMatch ignore"
+MLTON                 := mlton
+MLTON_FLAGS           += -default-ann "nonexhaustiveMatch ignore"
 
-MLLEX       := mllex
-MLYACC      := mlyacc
+MLLEX                 := mllex
+MLYACC                := mlyacc
 
-PREFIX      := /usr/local/mlton
+SMLDOC                := smldoc
+SMLDOC_ARGFILE        := formatlib/smldoc.cfg
 
-SMLFORMATLIB_MLB      := smlformat-lib.mlb
-SMLFORMAT_MLB         := generator/mlton/smlformat.mlb
-SMLFORMATLIB_TEST_MLB := formatlib/test/sources.mlb
-SMLFORMAT_MLBS        := $(SMLFORMATLIB_MLB)      \
-                         $(SMLFORMAT_MLB)         \
-                         $(SMLFORMATLIB_TEST_MLB)
+PREFIX                := /usr/local/mlton
+BINDIR                := $(PREFIX)/bin
+LIBDIR                := $(PREFIX)/lib
+DOCDIR                := $(PREFIX)/doc
+
+MLB_PATH_MAP          := $(PREFIX)/mlb-path-map
+MLTON_FLAGS           += -mlb-path-map $(MLB_PATH_MAP)
 
 SMLFORMAT             := bin/smlformat
+SMLFORMAT_LIB         := bin/.smlformat-lib.dummy
+SMLFORMAT_LIB_COMPAT  := bin/.smlformatlib.dummy
 
-EXAMPLES              := example/MLParser/sources \
-                         example/FormatExpressionParser/sources \
-                         example/Overview/sources
+TEST_TARGET           := bin/formatlib-test
 
-EXAMPLE_MLB           := $(EXAMPLES:=.mlb)
+EXAMPLE_TARGET        := bin/FormatExpressionParser \
+                         bin/MLParser \
+                         bin/Overview
 
-SMLFORMAT_LIB_DIR := $(shell readlink -f .)
+SMLFORMAT_MLB         := generator/mlton/smlformat.mlb
+
+TEST_MLB              := formatlib/test/sources.mlb
+
+EXAMPLE_MLB           := example/MLParser/sources.mlb \
+                         example/FormatExpressionParser/sources.mlb \
+                         example/Overview/sources.mlb
+
+DEPENDS               := $(SMLFORMAT_MLB:.mlb=.mlb.d) \
+                         smlformat-lib.mlb.d \
+                         smlformatlib.mlb.d
+
+TEST_DEPENDS          := $(TEST_MLB:.mlb=.mlb.d)
+
+EXAMPLE_DEPENDS       := $(EXAMPLE_MLB:.mlb=.mlb.d)
+
+SMLFORMAT_LIB_DIR     := $(shell readlink -f .)
 
 
-all: typecheck_smlformatlib smlformat test example
-
-
-.PHONY: typecheck_smlformatlib
-typecheck_smlformatlib: smlformat-lib.mlb smlformatlib.mlb
-	@echo "  [MLTON] typecheck $<"
-	@$(MLTON) $(MLTON_FLAGS) -stop tc smlformat-lib.mlb
-	@$(MLTON) $(MLTON_FLAGS) -stop tc smlformatlib.mlb
-
-
-$(EXAMPLE_MLB:.mlb=): %: %.mlb
-	@echo "  [MLTON] $@"
-	@$(MLTON) $(MLTON_FLAGS) -mlb-path-var 'SMLFORMAT_LIB $(SMLFORMAT_LIB_DIR)' -output $@ $<
-
-$(SMLFORMAT_MLB:.mlb=) $(SMLFORMATLIB_TEST_MLB:.mlb=): %: %.mlb
-	@echo "  [MLTON] $@"
-	@$(MLTON) $(MLTON_FLAGS) -output $@ $<
+all: smlformat
 
 
 .PHONY: smlformat
-smlformat: $(SMLFORMAT)
+smlformat: smlformat-nodoc doc
+
+
+.PHONY: smlformat-nodoc
+smlformat-nodoc: smlformat-bin smlformat-lib
+
+
+.PHONY: smlformat-bin
+smlformat-bin: $(SMLFORMAT)
+
+
+.PHONY: smlformat-lib
+smlformat-lib: $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT)
 
 
 $(SMLFORMAT): $(SMLFORMAT_MLB:.mlb=)
@@ -53,17 +69,24 @@ $(SMLFORMAT): $(SMLFORMAT_MLB:.mlb=)
 	@cp $< $@
 
 
-$(EXAMPLE_MLB:.mlb=.mlb.d): %.mlb.d: %.mlb
-	@echo "  [GEN] $@"
-	@$(SHELL) -ec '$(MLTON) $(MLTON_FLAGS) -mlb-path-var '\''SMLFORMAT_LIB $(SMLFORMAT_LIB_DIR)'\'' -stop f $< \
-		| sed -e "1i$(<:.mlb=) $@:\\\\" -e "s|.*|  & \\\\|" -e "\$$s| \\\\||" > $@; \
-		[ -s $@ ] || rm -rf $@'
+$(EXAMPLE_MLB:.mlb=): MLTON_FLAGS += -mlb-path-var "SMLFORMAT_LIB $(SMLFORMAT_LIB_DIR)"
+$(SMLFORMAT_MLB:.mlb=) $(TEST_MLB:.mlb=) $(EXAMPLE_MLB:.mlb=): %: %.mlb
+	@echo "  [MLTON] $@"
+	@$(MLTON) $(MLTON_FLAGS) -output $@ $<
 
-$(SMLFORMAT_MLBS:.mlb=.mlb.d) : %.mlb.d: %.mlb
+
+$(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT): bin/.%.dummy: %.mlb
+	@echo "  [MLTON] typecheck $<"
+	@$(MLTON) $(MLTON_FLAGS) -stop tc $<
+	@echo "typecheck dummy with: $(MLTON) $(MLTON_FLAGS) -stop tc $<" > $@
+
+
+$(EXAMPLE_DEPENDS): MLTON_FLAGS += -mlb-path-var "SMLFORMAT_LIB $(SMLFORMAT_LIB_DIR)"
+$(DEPENDS) $(TEST_DEPENDS) $(EXAMPLE_DEPENDS): %.mlb.d: %.mlb
 	@echo "  [GEN] $@"
 	@$(SHELL) -ec '$(MLTON) $(MLTON_FLAGS) -stop f $< \
 		| sed -e "1i$(<:.mlb=) $@:\\\\" -e "s|.*|  & \\\\|" -e "\$$s| \\\\||" > $@; \
-		[ -s $@ ] || rm -rf $@'
+		[ -s $@ ]'
 
 
 %.lex.sml: %.lex
@@ -81,56 +104,109 @@ $(SMLFORMAT_MLBS:.mlb=.mlb.d) : %.mlb.d: %.mlb
 	@$(SMLFORMAT) $<
 
 
+$(TEST_TARGET): $(TEST_MLB:.mlb=)
+	@echo "  [CP] $@"
+	@cp $< $@
+
+
 .PHONY: test
-test: typecheck_smlformatlib $(SMLFORMATLIB_TEST_MLB:.mlb=)
-	$(SMLFORMATLIB_TEST_MLB:.mlb=)
+test: $(TEST_TARGET)
+	./$<
+
+
+$(EXAMPLE_TARGET): bin/%: example/%/sources
+	@echo "  [CP] $@"
+	@cp $< $@
 
 
 .PHONY: example
-example: $(SMLFORMAT) $(EXAMPLES)
+example: $(EXAMPLE_TARGET)
 
 
-ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-  include $(SMLFORMAT_MLBS:.mlb=.mlb.d)
-  include $(EXAMPLE_MLB:.mlb=.mlb.d)
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+  include $(DEPENDS)
 endif
 
 
-.PHONY: install
-install: typecheck_smlformatlib $(SMLFORMAT) $(SMLFORMATLIB_MLB)
-	@[ -e $(PREFIX)/lib/SMLFormat ] || mkdir $(PREFIX)/lib/SMLFormat
-	@$(MLTON) $(MLTON_FLAGS) -stop f $(SMLFORMATLIB_MLB) | \
+ifeq (test,$(findstring test,$(MAKECMDGOALS)))
+  include $(TEST_DEPENDS)
+endif
+
+
+ifeq (example,$(findstring example,$(MAKECMDGOALS)))
+  include $(EXAMPLE_DEPENDS)
+endif
+
+
+.PHONY: install-nodoc
+install-nodoc: $(SMLFORMAT) $(SMLFORMAT_LIB) $(SMLFORMAT_LIB_COMPAT)
+	@install -d $(LIBDIR)/SMLFormat
+	@$(MLTON) $(MLTON_FLAGS) -stop f smlformat-lib.mlb | \
 	while read file; do \
 		if expr $$(readlink -f $$file) : ^$$(pwd) >/dev/null; then \
-			cp --parents $$(realpath --relative-to=$$(pwd) $$file) $(PREFIX)/lib/SMLFormat; \
+			cp --parents $$(realpath --relative-to=$$(pwd) $$file) $(LIBDIR)/SMLFormat; \
 			echo -n . ; \
 		fi; \
 	done
-	@install -D -m 0644 -t $(PREFIX)/lib/SMLFormat smlformatlib.mlb
-	@install -D -m 0755 -t $(PREFIX)/bin $(SMLFORMAT)
+	@install -D -m 0644 -t $(LIBDIR)/SMLFormat smlformat-lib.mlb
+	@install -D -m 0644 -t $(LIBDIR)/SMLFormat smlformatlib.mlb
+	@install -D -m 0755 -t $(BINDIR)           $(SMLFORMAT)
 	@echo "Installation has been completed."
 	@echo "Please add the entry to your mlb path map file:"
 	@echo ""
-	@echo "  SMLFORMAT_LIB $(PREFIX)/lib/SMLFormat"
+	@echo "  SMLFORMAT_LIB $(LIBDIR)/SMLFormat"
 	@echo ""
+
+
+.PHONY: install
+install: install-doc install-nodoc
+
+
+.PHONY: doc
+doc:
+	@echo "  [SMLDoc]"
+	@$(RM) -r doc/api
+	@install -d doc/api
+	@$(SMLDOC) -c UTF-8 -a $(SMLDOC_ARGFILE) -d doc/api
+
+
+.PHONY: install-doc
+install-doc: doc
+	@install -d $(DOCDIR)
+	@cp -prT doc $(DOCDIR)/smlformat-lib
+	@echo "================================================================"
+	@echo "Generated API Documents of SMLFormat"
+	@echo "\t$(DOCDIR)/smlformat-lib"
+	@echo "================================================================"
 
 
 .PHONY: clean
 clean:
-	-$(RM) $(SMLFORMAT_MLBS:.mlb=)
-	-$(RM) $(SMLFORMAT_MLBS:.mlb=.mlb.d)
 	-$(RM) $(SMLFORMAT)
-	-$(RM) generator/main/ml.grm.sml
-	-$(RM) generator/main/ml.grm.sig
-	-$(RM) generator/main/ml.grm.desc
+	-$(RM) $(SMLFORMAT_LIB)
+	-$(RM) $(SMLFORMAT_LIB_COMPAT)
+	-$(RM) $(SMLFORMAT_MLB:.mlb=)
+	-$(RM) $(DEPENDS)
+	-$(RM) $(TEST_TARGET)
+	-$(RM) $(TEST_MLB:.mlb=)
+	-$(RM) $(TEST_DEPENDS)
+	-$(RM) $(EXAMPLE_TARGET)
+	-$(RM) $(EXAMPLE_MLB:.mlb=)
+	-$(RM) $(EXAMPLE_DEPENDS)
+	-$(RM) -r doc/api
 	-$(RM) generator/main/ml.lex.sml
-	-$(RM) $(EXAMPLES)
-	-$(RM) $(EXAMPLE_MLB:.mlb=.mlb.d)
-	-$(RM) example/MLParser/ml.grm.sml
-	-$(RM) example/MLParser/ml.grm.sig
-	-$(RM) example/MLParser/ml.grm.desc
+	-$(RM) generator/main/ml.grm.sig
+	-$(RM) generator/main/ml.grm.sml
+	-$(RM) generator/main/ml.grm.desc
 	-$(RM) example/MLParser/Absyn.ppg.sml
-	-$(RM) example/FormatExpressionParser/Parser.grm.*
+	-$(RM) example/MLParser/ml.grm.sig
+	-$(RM) example/MLParser/ml.grm.sml
+	-$(RM) example/MLParser/ml.grm.desc
+	-$(RM) example/MLParser/ml.lex.sml
+	-$(RM) example/FormatExpressionParser/Parser.grm.sig
+	-$(RM) example/FormatExpressionParser/Parser.grm.sml
+	-$(RM) example/FormatExpressionParser/Parser.grm.desc
 	-$(RM) example/FormatExpressionParser/Lexer.lex.sml
-	-$(RM) example/Overview/*.ppg.sml
+	-$(RM) example/Overview/Types.ppg.sml
+	-$(RM) example/Overview/Examples.ppg.sml
 
