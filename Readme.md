@@ -86,7 +86,7 @@ To build `SMLFormat`, run the default target of `Makefile.smlnj`.
 $ make -f Makefile.smlnj
 ```
 
-The default target generates `smlformat`, `smlformat-lib`, `smlformatlib`, `ppg-ext` and `smlformat-tool` and documentations of the `SMLFormat` api.
+The default target generates `smlformat`, `smlformat-lib`, `smlformatlib` for backword compatibility, `ppg-ext` and `smlformat-tool` and documentations of the `SMLFormat` api.
 If you do not need the documentations, run the `smlformat-nodoc` target.
 
 ```sh
@@ -96,7 +96,7 @@ $ make -f Makefile.smlnj smlformat-nodoc
 
 ### Install
 
-To install `SMLFormat`, run the `install` target.
+To install `smlformat`, run the `install` target.
 
 ```sh
 $ make -f Makefile.smlnj install
@@ -144,74 +144,83 @@ $ make -f Makefile.smlnj example
 
 ## MLton
 
-To build smlformat project with `mlton`, use `Makefile.mlton`.
+### Build
 
-
-### Build smlformat
-
-Make `smlformat` target:
+To build `smlformat`, run the default target of `Makefile.mlton`.
 
 ```sh
-$ make -f Makefile.mlton smlformat
+$ make -f Makefile.mlton
 ```
 
-`bin/smlformat` will be generated.
+The default target generates `smlformat` and documentations of the `SMLFormat` api, and type checks `smlformat-lib` and `smlformatlib` for backword compatibility.
+If you do not need the documentations, run the `smlformat-nodoc` target.
+
+```sh
+$ make -f Makefile.mlton smlformat-nodoc
+```
 
 
 ### Install
 
-Install by `install` target.
+To install `smlformat`, run the `install` target.
 
 ```sh
 $ make -f Makefile.mlton install
-  [MLTON] typecheck smlformat-lib.mlb
-................Installation has been completed.
-Please add the entry to your mlb path map file:
-
-  SMLFORMAT_LIB /usr/local/mlton/lib/SMLFormat
-
 ```
 
-It is able to change the location with `PREFIX` variable like:
+To change the installation directory, specify `PREFIX`:
 
 ```sh
-make -f Makefile.mlton PREFIX=~/.sml/mlton install
-.
-.
-  SMLFORMAT_LIB /home/user/.sml/mlton/lib/SMLFormat
-
+$ make -f Makefile.mlton install PREFIX=~/.sml/mlton
 ```
 
-After `make install`, you need to add an entry in your mlb path mapping file:
+If you do not need the documentations, run the `install-nodoc` target.
 
 ```sh
-$ echo 'SMLFORMAT_LIB /path/to/$PREFIX/lib/SMLFormat' >> /path/to/mlb-path-map
+$ make -f Makefile.mlton install-nodoc
+```
+
+After installation, you need to add an entry to a mlb path mapping file:
+
+```sh
+$ echo 'SMLFORMAT_LIB $PREFIX/lib/SMLFormat' >> /path/to/mlb-path-map
+```
+
+
+### Doc
+
+To generate the documentations of `SMLFormat`, run the `doc` target.
+
+```sh
+$ make -f Makefile.mlton doc
 ```
 
 
 ### Test
 
-To perform unit test for `formatlib`, execute `test` target.
-This Unit test requires [SMLUnit], you need to specify the path to the library.
-
+To run the unit tests, run the `test` target.
+The unit tests require [SMLUnit].
+Makefile.mlton searches `mlb-path-map` file on `PREFIX` directory automatically.
 
 ```sh
-$ MLTON_FLAGS="-mlb-path-map /path/to/mlb-path-map" make -f Makefile.mlton test
-Makefile.mlton:93: smlformat-lib.mlb.d: No such file or directory
-Makefile.mlton:93: generator/mlton/smlformat.mlb.d: No such file or directory
-.
-.
-  [MLTON] formatlib/test/sources
-formatlib/test/sources
-.....................................................................................F...............F.........................
-tests = 127, failures = 2, errors = 0
-Failures:
-//11/SMLFormatTest0011/5/testGuard0101: expected:<"ab
-cdef">, actual:<"a
-b
-cdef">
-//14/BasicFormattersTest0001/8/testFormatReal0002: expected:<[...{0}..., Term #1 = 3, ...]>, actual:<[...{0}..., Term #1 = 1, ...]>
-Errors:
+$ make -f Makefile.mlton test
+```
+
+If your path map file could not been found, you need to specify the path to your path map file.
+
+```sh
+$ grep SMLUNIT_LIB /path/to/mlb-path-map
+SMLUNIT_LIB /path/to/SMLUnit
+$ make -f Makefile.mlton MLB_PATH_MAP=/path/to/mlb-path-map test
+```
+
+
+### Example
+
+To build examples, run the `example` target.
+
+```sh
+$ make -f Makefile.mlton example
 ```
 
 
@@ -228,7 +237,7 @@ $ make -f Makefile.polyml
 When some dependencies are not found, specify `PREFIX` or `LIBDIR`:
 
 ```sh
-$ make -f Makefile.polyml PREFIX=~/.sml/polyml/5.8.1
+$ make -f Makefile.polyml install PREFIX=~/.sml/polyml/5.8.1
 ```
 
 The default target generates `smlformat`, `smlformat-lib` and it's documentations.
