@@ -26,27 +26,6 @@ MLYACC_LIB     := $(LIBDIR)/mlyacc-lib/mlyacc-lib-1.0.0.poly
 SMLNJ_UTIL_LIB := $(LIBDIR)/smlnj-lib-110.82/smlnj-util-lib-0.0.1.poly
 SMLUNIT_LIB    := $(LIBDIR)/smlunit-lib/smlunit-lib.poly
 
-TEST_SRC          := \
-                  formatlib/test/BasicFormattersTest0001.sml \
-                  formatlib/test/call-main.sml \
-                  formatlib/test/load.sml \
-                  formatlib/test/PPLibTest.sml \
-                  formatlib/test/PrinterParameterTest0001.sml \
-                  formatlib/test/PrinterParameterTest0002.sml \
-                  formatlib/test/SMLFormatTest0001.sml \
-                  formatlib/test/SMLFormatTest0002.sml \
-                  formatlib/test/SMLFormatTest0003.sml \
-                  formatlib/test/SMLFormatTest0004.sml \
-                  formatlib/test/SMLFormatTest0005.sml \
-                  formatlib/test/SMLFormatTest0006.sml \
-                  formatlib/test/SMLFormatTest0007.sml \
-                  formatlib/test/SMLFormatTest0008.sml \
-                  formatlib/test/SMLFormatTest0009.sml \
-                  formatlib/test/SMLFormatTest0010.sml \
-                  formatlib/test/SMLFormatTest0011.sml \
-                  formatlib/test/SMLFormatTestUtil.sml \
-                  formatlib/test/TestMain.sml
-
 SMLFORMAT_LIB_SRC := \
                   formatlib/main/export.sml \
                   formatlib/main/ml_bind.sml \
@@ -104,11 +83,32 @@ OVERVIEW_SRC   := example/Overview/Examples.ppg.sml \
                   example/Overview/Types.ppg.sml \
                   example/Overview/ml_bind.sml
 
-TEST           := bin/formatlib-test
+TEST_SRC          := \
+                  formatlib/test/BasicFormattersTest0001.sml \
+                  formatlib/test/call-main.sml \
+                  formatlib/test/load.sml \
+                  formatlib/test/PPLibTest.sml \
+                  formatlib/test/PrinterParameterTest0001.sml \
+                  formatlib/test/PrinterParameterTest0002.sml \
+                  formatlib/test/SMLFormatTest0001.sml \
+                  formatlib/test/SMLFormatTest0002.sml \
+                  formatlib/test/SMLFormatTest0003.sml \
+                  formatlib/test/SMLFormatTest0004.sml \
+                  formatlib/test/SMLFormatTest0005.sml \
+                  formatlib/test/SMLFormatTest0006.sml \
+                  formatlib/test/SMLFormatTest0007.sml \
+                  formatlib/test/SMLFormatTest0008.sml \
+                  formatlib/test/SMLFormatTest0009.sml \
+                  formatlib/test/SMLFormatTest0010.sml \
+                  formatlib/test/SMLFormatTest0011.sml \
+                  formatlib/test/SMLFormatTestUtil.sml \
+                  formatlib/test/TestMain.sml
 
 EXAMPLES       := bin/mlparser \
                   bin/fmt_expr_parser \
                   bin/overview.poly
+
+TEST           := bin/formatlib-test
 
 
 define build-module
