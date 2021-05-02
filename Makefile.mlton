@@ -14,7 +14,9 @@ LIBDIR                := $(PREFIX)/lib
 DOCDIR                := $(PREFIX)/doc
 
 MLB_PATH_MAP          := $(PREFIX)/mlb-path-map
+ifneq ($(wildcard $(MLB_PATH_MAP)),)
 MLTON_FLAGS           += -mlb-path-map $(MLB_PATH_MAP)
+endif
 
 SMLFORMAT             := bin/smlformat
 SMLFORMAT_LIB         := bin/.smlformat-lib.dummy
